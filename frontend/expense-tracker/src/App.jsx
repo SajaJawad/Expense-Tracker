@@ -7,7 +7,7 @@ import Income from './pages/Dashboard/Income';
 import Expense from './pages/Dashboard/Expense';
 
 import {
-BrowserRouter as Router,
+  BrowserRouter as Router,
   Routes,
   Route,
   Navigate
@@ -36,9 +36,15 @@ export default App
 
 
 
-const Root =()=>{
+const Root = () => {
   //Check if token exists in localStorage
+  const isAuthenticated = !!localStorage.getItem("token")
 
+  //Redirect to dashboard if authenticated, otherwise to login
+  return isAuthenticated ? (
+    <Navigate to="/dashboard" />
+  ) : (
+    <Navigate to="/login" />
+  )
 
-  
 }
