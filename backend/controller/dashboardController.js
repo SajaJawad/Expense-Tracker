@@ -24,8 +24,12 @@ exports.getDashboardData = async (req, res) => {
 
         ]);
 
+        //Get income transaction in the last 60 day
+        const last60DaysIncomeTransactions = await Income.find({
+            userId, 
+            date:{$gte: new Date(Date.now() - 60 * 24 * 60* 60* 1000)}
+        }).sort({date: -1})
+
         
-
-
     }
 }
