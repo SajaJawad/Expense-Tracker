@@ -30,6 +30,12 @@ exports.getDashboardData = async (req, res) => {
             date:{$gte: new Date(Date.now() - 60 * 24 * 60* 60* 1000)}
         }).sort({date: -1})
 
+        //Get total income for last 60 days
+        const incomeLast60Days = last60DaysIncomeTransactions.reduce(
+            (sum, transaction)=>sum + transaction.amount,
+            0
+        );
+
         
     }
 }
