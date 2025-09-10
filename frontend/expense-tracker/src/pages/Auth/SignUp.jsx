@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import AuthLayout from '../../componants/layouts/AuthLayout'
 import { Link, useNavigate } from 'react-router-dom';
 import Input from '../../componants/layouts/Inputs/input';
 import { validateEmail } from '../../utils/helper';
 import ProfilePhotoSelector from '../../componants/layouts/Inputs/ProfilePhotoSelector';
+import axiosInstance from '../../utils/axiosInstance';
+import { API_PATHS } from '../../utils/apiPaths';
+import { UserContext } from '../../context/userContext';
+import uploadImage from '../../utils/uploadImage';
 
 
 
@@ -14,15 +18,16 @@ const SignUp = () => {
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
 
+  const {updateUser}= useContext(UserContext)
+
   const navigate = useNavigate()
 
 
   //Handle Sign up Form Submit
-
   const handleSignUp = async (e) => {
     e.preventDefault()
 
-    let profileImageUul = "";
+    let profileImageUrl = "";
 
     if (!fullName) {
       setError("Please enter your name")
@@ -37,15 +42,42 @@ const SignUp = () => {
     if (!password) {
       setError("Please enter the password")
       return;
-      
+
     }
 
     setError("")
 
     //SignUp API call
+    try {
+
+      //Upload image if present
+if(profilePic){
+  const imgUploadRes= await uploadImage(profilePic)
+  profileImageUrl= imgUploadRes.imageUrl || ""
+}
 
 
-  }
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER ,{
+      fullName,
+      email,
+      password,
+      profileImageUrl
+    });
+
+    const {token , user}= response.data;
+    if (token) {
+      localStorage.setItem("token" ,token );
+      updateUser(user);
+      navigate("/dashboard")
+    }
+    } catch(error){
+      if (error.response && error.response.data.message) {
+        setError(error.response.data.message)
+      }else {
+        setError("Something went wrong. Please try again.")
+      }
+    }
+  };
 
   return (
     <AuthLayout>
