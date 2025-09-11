@@ -5,6 +5,8 @@ import { validateEmail } from '../../utils/helper';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { UserContext } from '../../context/userContext';
+import AuthLayout from './../../componants/layouts/AuthLayout';
+import Input from './../../componants/Inputs/Input';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -37,6 +39,7 @@ const Login = () => {
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email,
         password,
+
       });
       const { token, user } = response.data;
 
@@ -47,6 +50,7 @@ const Login = () => {
          return;
       }
     } catch (error) {
+      console.log(error.response?.data);
       if (error.response && error.response.data.message) {
         setError("Something went wrong, Please try again")
 
@@ -55,7 +59,7 @@ const Login = () => {
   }
 
   return (
-    <AuthLayoutt>
+    <AuthLayout>
       <div className='lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center'>
         <h3 className='text-xl font-semibold text-black'>Welcome Back</h3>
         <p className='text-xs text-slate-700 mt-[5px] mb-6'>
@@ -90,7 +94,7 @@ const Login = () => {
           </p>
         </form>
       </div>
-    </AuthLayoutt>
+    </AuthLayout>
   )
 }
 
