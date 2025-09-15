@@ -5,10 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import InfoCard from '../../componants/Cards/InfoCard';
-  import {LuHandCoins, LuWalletMinimal} from 'react-icons/lu'
-  import {IoMdCard} from "react-icons/io"
+import { LuHandCoins, LuWalletMinimal } from 'react-icons/lu'
+import { IoMdCard } from "react-icons/io"
 import { addThousandsSeparator } from '../../utils/helper';
 import RecentTransitions from '../../componants/Dashboard/RecentTransitions';
+import FinanceOverview from '../../componants/Dashboard/FinanceOverview';
 
 const Home = () => {
   useUserAuth();
@@ -40,19 +41,19 @@ const Home = () => {
     }
   }
 
-useEffect(()=>{
-  fetchDashboardData()
-  return ()=>{
+  useEffect(() => {
+    fetchDashboardData()
+    return () => {
 
-  }
-},[])
+    }
+  }, [])
 
 
   return (
     <DashboardLayout activeMenu="Dashboard">
       <div className='my-5 mx-auto'>
 
-        <div className=' grid grid-cols-1 md:grid-cols-3 gap-6'>
+        {/* <div className=' grid grid-cols-1 md:grid-cols-3 gap-6'>
           <InfoCard
           icon= {<IoMdCard/>}
           label="Total Balance"
@@ -77,17 +78,22 @@ useEffect(()=>{
 
 
         </div>
-      
-      
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 '>
+       */}
 
-    <RecentTransitions 
-    transitions = {dashboardData?.recentTransactions}
-    onSeeMore = {()=>navigate("/expense")}
-    />
-    
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 '>
 
-      </div>
+          <RecentTransitions
+            transitions={dashboardData?.recentTransactions}
+            onSeeMore={() => navigate("/expense")}
+          />
+
+          <FinanceOverview
+            totalBalance={dashboardData?.totalBalance || 0}
+            totalIncome={dashboardData?.totalIncome || 0}
+            totalExpense={dashboardData?.totalExpense || 0}
+          />
+
+        </div>
       </div>
     </DashboardLayout>
 
