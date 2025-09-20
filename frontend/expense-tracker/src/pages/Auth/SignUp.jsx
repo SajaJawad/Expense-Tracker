@@ -5,6 +5,9 @@ import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { UserContext } from '../../context/userContext';
 import uploadImage from '../../utils/uploadImage';
+import AuthLayout from './../../componants/layouts/AuthLayout';
+import ProfilePhotoSelector from './../../componants/Inputs/ProfilePhotoSelector';
+import Input from './../../componants/Inputs/Input';
 
 
 
