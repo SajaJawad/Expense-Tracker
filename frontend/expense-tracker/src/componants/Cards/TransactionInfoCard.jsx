@@ -3,7 +3,7 @@ import { LuTrash, LuTrash2, LuTrendingDown, LuTrendingUp, LuUtensils } from "rea
 
 
 
-const TransactionInfoCard = ({ tittle, icon, date, amount, types, hideDeleteBtn }) => {
+const TransactionInfoCard = ({ tittle, icon, date, amount, types, hideDeleteBtn , onDelete }) => {
 
 const getAmountStyles=()=>  types === "income" ? "bg-green-50 text-green-500 " : "bg-red-50 text-red-500"
 

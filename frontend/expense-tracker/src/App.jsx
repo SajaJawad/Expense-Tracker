@@ -14,6 +14,7 @@ import {
   Navigate
 } from 'react-router-dom'
 import UserProvider from './context/userContext';
+import IncomeOverview from './componants/Income/IncomeOverview';
 const App = () => {
 
 
