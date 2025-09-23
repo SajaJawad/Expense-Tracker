@@ -53,7 +53,6 @@ const Home = () => {
   }, [])
 
 
-  console.log("last60DaysIncome:", dashboardData?.last60DaysIncome);
 
   return (
     <DashboardLayout activeMenu="Dashboard">
