@@ -1,92 +1,126 @@
-const Income = require("../models/Income")
-const Expense = require("../models/Expense")
-const { isValidObjectId, Types } = require("mongoose")
+const supabase = require("../config/supabase");
 
-
-
-//Dashboard Data
+// Dashboard Data
 exports.getDashboardData = async (req, res) => {
     try {
         const userId = req.user.id;
-        const userObjectId = new Types.ObjectId(String(userId));
 
-        //Fetch total income & expenses
-        const totalIncome = await Income.aggregate([
-            { $match: { userId: userObjectId } },
-            { $group: { _id: null, total: { $sum: "$amount" } } }
-        ]);
+        // Fetch all incomes for total calculation
+        const { data: allIncomes, error: incErr } = await supabase
+            .from("incomes")
+            .select("*")
+            .eq("user_id", userId);
+        if (incErr) throw incErr;
 
-        console.log("totalIncome", { totalIncome, userId: isValidObjectId(userId) });
+        // Fetch all expenses for total calculation
+        const { data: allExpenses, error: expErr } = await supabase
+            .from("expenses")
+            .select("*")
+            .eq("user_id", userId);
+        if (expErr) throw expErr;
 
-        const totalExpense = await Expense.aggregate([
-            { $match: { userId: userObjectId } },
-            { $group: { _id: null, total: { $sum: "$amount" } } }
+        const totalIncomeVal = (allIncomes || []).reduce((sum, item) => sum + Number(item.amount), 0);
+        const totalExpenseVal = (allExpenses || []).reduce((sum, item) => sum + Number(item.amount), 0);
 
-        ]);
+        // Get income transactions in the last 60 days
+        const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+        const { data: incomeLast60, error: inc60Err } = await supabase
+            .from("incomes")
+            .select("*")
+            .eq("user_id", userId)
+            .gte("date", sixtyDaysAgo)
+            .order("date", { ascending: false });
+        if (inc60Err) throw inc60Err;
 
-        //Get income transaction in the last 60 day
-        const last60DaysIncomeTransactions = await Income.find({
-            userId,
-            date: { $gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) }
-        }).sort({ date: -1 })
+        const formattedIncome60 = (incomeLast60 || []).map(item => ({
+            _id: item.id,
+            id: item.id,
+            userId: item.user_id,
+            icon: item.icon,
+            source: item.source,
+            amount: Number(item.amount),
+            date: item.date,
+            createdAt: item.created_at
+        }));
 
-        //Get total income for last 60 days
-        const incomeLast60Days = last60DaysIncomeTransactions.reduce(
-            (sum, transaction) => sum + transaction.amount,
-            0
-        );
+        const incomeLast60DaysTotal = formattedIncome60.reduce((sum, item) => sum + item.amount, 0);
 
-        //Get expense transaction in the last 30 days
-        const last30DaysExpenseTransactions = await Expense.find({
-            userId,
-            date: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
-        }).sort({ date: -1 });
+        // Get expense transactions in the last 30 days
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        const { data: expenseLast30, error: exp30Err } = await supabase
+            .from("expenses")
+            .select("*")
+            .eq("user_id", userId)
+            .gte("date", thirtyDaysAgo)
+            .order("date", { ascending: false });
+        if (exp30Err) throw exp30Err;
 
-        //Get total expenses for last 30 days
-        const expenseLast30Days = last30DaysExpenseTransactions.reduce(
-            (sum, transaction) => sum + transaction.amount,
-            0
-        )
+        const formattedExpense30 = (expenseLast30 || []).map(item => ({
+            _id: item.id,
+            id: item.id,
+            userId: item.user_id,
+            icon: item.icon,
+            category: item.category,
+            amount: Number(item.amount),
+            date: item.date,
+            createdAt: item.created_at
+        }));
 
-        //Fetch last 5 transactions (income + expenses)
+        const expenseLast30DaysTotal = formattedExpense30.reduce((sum, item) => sum + item.amount, 0);
+
+        // Fetch recent 5 incomes and 5 expenses
+        const { data: recentIncomes } = await supabase
+            .from("incomes")
+            .select("*")
+            .eq("user_id", userId)
+            .order("date", { ascending: false })
+            .limit(5);
+
+        const { data: recentExpenses } = await supabase
+            .from("expenses")
+            .select("*")
+            .eq("user_id", userId)
+            .order("date", { ascending: false })
+            .limit(5);
+
         const lastTransactions = [
-            ...(await Income.find({ userId }).sort({ date: -1 }).limit(5)).map(
-                (txn) => ({
-                    ...txn.toObject(),
-                    type: "income",
-                })
-            ),
-            ...(await Expense.find({ userId }).sort({ date: -1 }).limit(5)).map(
-                (txn) => ({
-                    ...txn.toObject(),
-                    type: "expense",
-                })
-            ),
-        ].sort((a, b) => b.date - a.date); //Sort latest first
+            ...(recentIncomes || []).map(item => ({
+                _id: item.id,
+                id: item.id,
+                userId: item.user_id,
+                icon: item.icon,
+                source: item.source,
+                amount: Number(item.amount),
+                date: item.date,
+                type: "income"
+            })),
+            ...(recentExpenses || []).map(item => ({
+                _id: item.id,
+                id: item.id,
+                userId: item.user_id,
+                icon: item.icon,
+                category: item.category,
+                amount: Number(item.amount),
+                date: item.date,
+                type: "expense"
+            }))
+        ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
-
-
-        //Final Response
         res.json({
-            totalBalance:
-                (totalIncome[0]?.total || 0) - (totalExpense[0]?.total || 0),
-            totalIncome: totalIncome[0]?.total || 0,
-            totalExpense: totalExpense[0]?.total || 0,
+            totalBalance: totalIncomeVal - totalExpenseVal,
+            totalIncome: totalIncomeVal,
+            totalExpense: totalExpenseVal,
             last30DaysExpense: {
-                total: expenseLast30Days,
-                transactions: last30DaysExpenseTransactions
+                total: expenseLast30DaysTotal,
+                transactions: formattedExpense30
             },
             last60DaysIncome: {
-                total: incomeLast60Days,
-                transactions: last60DaysIncomeTransactions
+                total: incomeLast60DaysTotal,
+                transactions: formattedIncome60
             },
-            recentTransactions: lastTransactions,
+            recentTransactions: lastTransactions
         });
-
     } catch (error) {
-        res.status(500).json({ message: "Server Error", error })
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
-
-
-
-}
+};

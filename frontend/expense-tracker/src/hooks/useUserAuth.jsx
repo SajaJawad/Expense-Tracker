@@ -9,12 +9,19 @@ export const useUserAuth = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            clearUser();
+            navigate("/login", { replace: true });
+            return;
+        }
+
         if (user) return;
 
         let isMounted = true;
         const fetchUserInfo = async () => {
             try {
-                const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER_INFO)
+                const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER_INFO);
 
                 if (isMounted && response.data) {
                     updateUser(response.data);
@@ -24,16 +31,15 @@ export const useUserAuth = () => {
 
                 if (isMounted) {
                     clearUser();
-                    navigate("/login")
+                    navigate("/login", { replace: true });
                 }
             }
         };
-
 
         fetchUserInfo();
         return () => {
             isMounted = false;
         };
-    }, [updateUser, clearUser, navigate])
-}
+    }, [user, updateUser, clearUser, navigate]);
+};
 

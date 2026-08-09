@@ -11,24 +11,24 @@ const SideMenu = ({ activeMenu }) => {
   const navigate = useNavigate();
 
   const handleClick = (route) => {
-    if (route === "logout") {
+    if (route === "/logout" || route === "logout") {
       handleLogout();
       return;
     }
-    navigate(route)
-  }
+    navigate(route);
+  };
 
   const handleLogout = () => {
-    localStorage.clear()
+    localStorage.clear();
     clearUser();
-    navigate("/login")
-  }
+    navigate("/login", { replace: true });
+  };
 
   return (
     <div className='w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200/50 p-5 sticky top-[61px] z-20'>
       <div className='flex flex-col items-center justify-center gap-3  mb-7 mt-3  '>
         {user?.profileImageUrl ? (
-          <img src={user?.profileImageUrl || ""} alt='Profile Image' className='w-20 h-20 bg-slate-400 rounded-full' />) :
+          <img src={user?.profileImageUrl || ""} alt='Profile Image' className='w-20 h-20 bg-slate-400 rounded-full object-cover' />) :
            (<CharAvatar
             fullName={user?.fullName}
             width="w-20"
