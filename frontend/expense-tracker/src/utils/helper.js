@@ -34,7 +34,9 @@ export const addThousandsSeparator = (num) => {
 
 
 export const prepareExpenseBarCharData = (data = []) => {
-  const charData = data.map((item) => ({
+  const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date))
+  const charData = sortedData.map((item) => ({
+    month: moment(item?.date).format('Do MMM'),
     category: item?.category,
     amount: item?.amount
   }))

@@ -115,7 +115,7 @@ const Home = () => {
           />
 
           <Last30DaysExpenses
-            data={dashboardData?.recentTransactions.filter(t => t.type === "expense") || []}
+            data={dashboardData?.last30DaysExpense?.transactions || []}
           />
 
           <RecentIncome
