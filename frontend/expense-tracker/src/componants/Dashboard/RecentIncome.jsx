@@ -3,7 +3,7 @@ import { LuArrowRight } from 'react-icons/lu'
 import TransactionInfoCard from '../Cards/TransactionInfoCard'
 import moment from 'moment'
 
-const RecentIncome = ({ transactions, onSeeMore }) => {
+const RecentIncome = ({ transactions, onSeeMore, onDelete, onEdit }) => {
     return (
         <div className='card'>
             <div className='flex items-center justify-between'>
@@ -18,10 +18,11 @@ const RecentIncome = ({ transactions, onSeeMore }) => {
                         key={item._id}
                         tittle={item.source}
                         icon={item.icon}
-                        date={moment(item.date).format("Do MM YYYY ")}
+                        date={moment(item.date).format("Do MMM YYYY")}
                         amount= {item.amount}
                         types="income"
-                        hideDeleteBtn
+                        onDelete={onDelete ? () => onDelete({ ...item, type: 'income' }) : undefined}
+                        onEdit={onEdit ? () => onEdit({ ...item, type: 'income' }) : undefined}
                     />
                 ))}
                 

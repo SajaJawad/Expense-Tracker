@@ -75,6 +75,42 @@ exports.getAllExpense = async (req, res) => {
     }
 };
 
+// Update Expense
+exports.updateExpense = async (req, res) => {
+    try {
+        const { icon, category, amount, date } = req.body;
+        const updateData = {};
+        if (icon !== undefined) updateData.icon = icon;
+        if (category !== undefined) updateData.category = category;
+        if (amount !== undefined) updateData.amount = Number(amount);
+        if (date !== undefined) updateData.date = new Date(date).toISOString();
+
+        const { data, error } = await supabase
+            .from("expenses")
+            .update(updateData)
+            .eq("id", req.params.id)
+            .select("*")
+            .single();
+
+        if (error) throw error;
+
+        const formatted = {
+            _id: data.id,
+            id: data.id,
+            userId: data.user_id,
+            icon: data.icon,
+            category: data.category,
+            amount: Number(data.amount),
+            date: data.date,
+            createdAt: data.created_at
+        };
+
+        res.json(formatted);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
 // Delete Expense  
 exports.deleteExpense = async (req, res) => {
     try {

@@ -1,9 +1,7 @@
 import React from 'react'
-import { LuTrash, LuTrash2, LuTrendingDown, LuTrendingUp, LuUtensils } from "react-icons/lu";
+import { LuPencil, LuTrash, LuTrash2, LuTrendingDown, LuTrendingUp, LuUtensils } from "react-icons/lu";
 
-
-
-const TransactionInfoCard = ({ tittle, icon, date, amount, types, hideDeleteBtn , onDelete }) => {
+const TransactionInfoCard = ({ tittle, icon, date, amount, types, hideDeleteBtn, onDelete, onEdit }) => {
 
 const getAmountStyles=()=>  types === "income" ? "bg-green-50 text-green-500 " : "bg-red-50 text-red-500"
 
@@ -25,11 +23,21 @@ const getAmountStyles=()=>  types === "income" ? "bg-green-50 text-green-500 " :
         </div>
 
         <div className='flex items-center gap-2'>
-          {!hideDeleteBtn && (
-            <button className='text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer'
-              onClick={onDelete}
+          {onEdit && (
+            <button className='text-gray-400 hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer p-1'
+              onClick={onEdit}
+              title="Edit"
             >
-              <LuTrash2 size={18} />
+              <LuPencil size={16} />
+            </button>
+          )}
+
+          {!hideDeleteBtn && onDelete && (
+            <button className='text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer p-1'
+              onClick={onDelete}
+              title="Delete"
+            >
+              <LuTrash2 size={16} />
             </button>
           )}
 

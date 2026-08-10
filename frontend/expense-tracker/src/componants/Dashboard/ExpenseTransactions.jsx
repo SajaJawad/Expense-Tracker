@@ -3,7 +3,7 @@ import { LuArrowRight } from 'react-icons/lu'
 import TransactionInfoCard from '../../componants/Cards/TransactionInfoCard'
 import moment from 'moment'
 
-const ExpenseTransactions = ({ transactions, onSeeMore }) => {
+const ExpenseTransactions = ({ transactions, onSeeMore, onDelete, onEdit }) => {
 
 
     return (
@@ -29,7 +29,8 @@ const ExpenseTransactions = ({ transactions, onSeeMore }) => {
                         date={moment(expense.date).format("Do MMM YYYY")}
                         amount={expense.amount}
                         types="expense"
-                        hideDeleteBtn
+                        onDelete={onDelete ? () => onDelete({ ...expense, type: 'expense' }) : undefined}
+                        onEdit={onEdit ? () => onEdit({ ...expense, type: 'expense' }) : undefined}
                     />
                 )
                 )}

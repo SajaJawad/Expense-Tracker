@@ -4,7 +4,7 @@ import { LuArrowRight } from 'react-icons/lu'
 import moment from 'moment'
 import TransactionInfoCard from '../Cards/TransactionInfoCard'
 
-const RecentTransitions = ({ transitions, onSeeMore }) => {
+const RecentTransitions = ({ transitions, onSeeMore, onDelete, onEdit }) => {
     return (
         <div className='card'>
             <div className='flex items-center justify-between'>
@@ -20,10 +20,11 @@ const RecentTransitions = ({ transitions, onSeeMore }) => {
                         key={item._id}
                         tittle={item.type == 'expense' ? item.category : item.source}
                         icon={item.icon}
-                        date={moment(item.date).format("Do MM YYYY ")}
+                        date={moment(item.date).format("Do MMM YYYY")}
                         amount= {item.amount}
                         types={item.type}
-                        hideDeleteBtn
+                        onDelete={onDelete ? () => onDelete(item) : undefined}
+                        onEdit={onEdit ? () => onEdit(item) : undefined}
                     />
                 ))}
             </div>

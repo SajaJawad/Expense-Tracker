@@ -19,7 +19,10 @@ const [openSideMenu , setOpenSideMenu]= useState(false)
     )}
   </button>
 
-<h2 className='text-lg font-medium text-black'>Expense Tracker</h2>
+<div className='flex items-center gap-3'>
+  <img src="/logo.png" alt="Expense Tracker" className="w-8 h-8 rounded-lg object-contain shadow-xs" />
+  <h2 className='text-lg font-semibold text-black'>Expense Tracker</h2>
+</div>
 
 {openSideMenu && (
   <div className='fixed top-[61px] -ml-4 bg-white'>

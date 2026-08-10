@@ -75,6 +75,42 @@ exports.getAllIncome = async (req, res) => {
     }
 };
 
+// Update Income
+exports.updateIncome = async (req, res) => {
+    try {
+        const { icon, source, amount, date } = req.body;
+        const updateData = {};
+        if (icon !== undefined) updateData.icon = icon;
+        if (source !== undefined) updateData.source = source;
+        if (amount !== undefined) updateData.amount = Number(amount);
+        if (date !== undefined) updateData.date = new Date(date).toISOString();
+
+        const { data, error } = await supabase
+            .from("incomes")
+            .update(updateData)
+            .eq("id", req.params.id)
+            .select("*")
+            .single();
+
+        if (error) throw error;
+
+        const formatted = {
+            _id: data.id,
+            id: data.id,
+            userId: data.user_id,
+            icon: data.icon,
+            source: data.source,
+            amount: Number(data.amount),
+            date: data.date,
+            createdAt: data.created_at
+        };
+
+        res.json(formatted);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
 // Delete Income  
 exports.deleteIncome = async (req, res) => {
     try {

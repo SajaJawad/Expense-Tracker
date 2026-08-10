@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import EmojiPickerPopup from './../EmojiPickerPopup';
 import Input from './../Inputs/Input';
+import moment from 'moment';
 
-const AddExpenseForm = ({ onAddExpense }) => {
+const AddExpenseForm = ({ onAddExpense, initialData }) => {
 
     const [expense, setExpense] = useState({
         category: "",
@@ -11,9 +12,18 @@ const AddExpenseForm = ({ onAddExpense }) => {
         icon: "",
     })
 
+    useEffect(() => {
+        if (initialData) {
+            setExpense({
+                category: initialData.category || "",
+                amount: initialData.amount || "",
+                date: initialData.date ? moment(initialData.date).format("YYYY-MM-DD") : "",
+                icon: initialData.icon || "",
+            })
+        }
+    }, [initialData])
+
     const handleChange = (key, value) => setExpense({ ...expense, [key]: value })
-
-
 
     return (
         <div>
@@ -51,7 +61,7 @@ const AddExpenseForm = ({ onAddExpense }) => {
                     className='add-btn add-btn-fill'
                     onClick={() => onAddExpense(expense)}
                 >
-                    Add Expense
+                    {initialData ? "Update Expense" : "Add Expense"}
                 </button>
             </div>
         </div>
