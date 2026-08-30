@@ -1,12 +1,14 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { SIDE_MENU_DATA } from '../../utils/data';
 import { UserContext } from '../../context/userContext';
 import { useNavigate } from 'react-router-dom';
 import CharAvatar from '../Inputs/CharAvatar';
 import { LuLogOut } from 'react-icons/lu';
+import { getProfileImageUrl } from '../../utils/helper';
 
 const SideMenu = ({ activeMenu, closeMobileMenu }) => {
   const { user, clearUser } = useContext(UserContext);
+  const [imgError, setImgError] = useState(false);
   const navigate = useNavigate();
 
   const handleClick = (route) => {
@@ -26,6 +28,7 @@ const SideMenu = ({ activeMenu, closeMobileMenu }) => {
   };
 
   const menuItems = SIDE_MENU_DATA.filter((item) => item.label !== "Logout");
+  const activeAvatar = getProfileImageUrl(user?.profileImageUrl);
 
   return (
     <div className='w-64 h-full bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800/80 p-4 flex flex-col justify-between overflow-y-auto transition-colors duration-200'>
@@ -70,10 +73,11 @@ const SideMenu = ({ activeMenu, closeMobileMenu }) => {
         
         {/* User Card */}
         <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60">
-          {user?.profileImageUrl ? (
+          {activeAvatar && !imgError ? (
             <img 
-              src={user?.profileImageUrl} 
+              src={activeAvatar} 
               alt={user?.fullName || 'Avatar'} 
+              onError={() => setImgError(true)}
               className='w-10 h-10 rounded-full object-cover border border-purple-200 dark:border-purple-800 shrink-0' 
             />
           ) : (

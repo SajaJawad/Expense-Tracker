@@ -1,18 +1,7 @@
 const multer = require("multer");
-const path = require("path");
 
-// Configure storage
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        const safeExt = ['.jpg', '.jpeg', '.png', '.webp'].includes(ext) ? ext : '.png';
-        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${safeExt}`;
-        cb(null, uniqueName);
-    },
-});
+// Use memory storage for seamless Vercel / serverless cloud deployment
+const storage = multer.memoryStorage();
 
 // File filter (image/jpeg, image/png, image/webp)
 const fileFilter = (req, file, cb) => {

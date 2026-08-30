@@ -5,10 +5,14 @@ import ThemeToggle from '../ThemeToggle';
 import { UserContext } from '../../context/userContext';
 import CharAvatar from '../Inputs/CharAvatar';
 import BrandLogo from '../BrandLogo';
+import { getProfileImageUrl } from '../../utils/helper';
 
 const Navbar = ({ activeMenu }) => {
   const [openSideMenu, setOpenSideMenu] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const { user } = useContext(UserContext);
+
+  const activeAvatar = getProfileImageUrl(user?.profileImageUrl);
 
   return (
     <header className='sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 border-b border-slate-200/80 dark:border-slate-800/80 backdrop-blur-xl px-4 sm:px-8 py-3 transition-colors duration-200 shadow-2xs'>
@@ -39,10 +43,11 @@ const Navbar = ({ activeMenu }) => {
           {/* User Profile Pill */}
           <div className="flex items-center gap-2.5 pl-3 border-l border-slate-200/80 dark:border-slate-800/80">
             <div className="relative group cursor-pointer">
-              {user?.profileImageUrl ? (
+              {activeAvatar && !imgError ? (
                 <img 
-                  src={user?.profileImageUrl} 
+                  src={activeAvatar} 
                   alt={user?.fullName || 'Avatar'} 
+                  onError={() => setImgError(true)}
                   className='w-9 h-9 rounded-xl object-cover border-2 border-purple-200 dark:border-purple-800 shadow-xs' 
                 />
               ) : (

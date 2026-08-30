@@ -10,13 +10,15 @@ router.post("/login", loginUser);
 router.get("/getUser", protect, getUserInfo);
 router.put("/update-profile", protect, updateUserProfile);
 
-// Protect image upload endpoint
+// Protect image upload endpoint (converts buffer to portable base64 data URL)
 router.post("/upload-image", protect, upload.single("image"), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    // Convert file buffer to portable data URL (works 100% on Vercel, Supabase, Render, Localhost)
+    const base64Data = req.file.buffer.toString("base64");
+    const imageUrl = `data:${req.file.mimetype};base64,${base64Data}`;
 
     res.status(200).json({ imageUrl });
 });

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import { UserContext } from '../../context/userContext';
 import { useUserAuth } from '../../hooks/useUserAuth';
@@ -7,6 +7,7 @@ import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import toast from 'react-hot-toast';
 import { LuCamera, LuUser, LuMail, LuLock, LuSave, LuLoader } from 'react-icons/lu';
+import { getProfileImageUrl } from '../../utils/helper';
 
 const Settings = () => {
   useUserAuth();
@@ -16,16 +17,18 @@ const Settings = () => {
 
   const [fullName, setFullName] = useState(user?.fullName || '');
   const [profileImageUrl, setProfileImageUrl] = useState(user?.profileImageUrl || '');
-  const [previewImage, setPreviewImage] = useState(user?.profileImageUrl || '');
+  const [previewImage, setPreviewImage] = useState(getProfileImageUrl(user?.profileImageUrl));
+  const [imgError, setImgError] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Sync when user loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       setFullName(user.fullName || '');
       setProfileImageUrl(user.profileImageUrl || '');
-      setPreviewImage(user.profileImageUrl || '');
+      setPreviewImage(getProfileImageUrl(user.profileImageUrl));
+      setImgError(false);
     }
   }, [user]);
 
@@ -39,7 +42,11 @@ const Settings = () => {
 
     // Preview immediately
     const reader = new FileReader();
-    reader.onloadend = () => setPreviewImage(reader.result);
+    reader.onloadend = () => {
+      setPreviewImage(reader.result);
+      setProfileImageUrl(reader.result); // Base64 data URL
+      setImgError(false);
+    };
     reader.readAsDataURL(file);
 
     // Upload to server
@@ -50,10 +57,14 @@ const Settings = () => {
       const res = await axiosInstance.post(API_PATHS.IMAGE.UPLOAD_IMAGE, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setProfileImageUrl(res.data.imageUrl);
+      if (res.data?.imageUrl) {
+        setProfileImageUrl(res.data.imageUrl);
+        setPreviewImage(res.data.imageUrl);
+        setImgError(false);
+      }
       toast.success('Image uploaded! Click Save to apply changes.');
     } catch {
-      toast.error('Failed to upload image');
+      toast.error('Failed to upload image. Local preview ready to save.');
     } finally {
       setUploading(false);
     }
@@ -81,6 +92,8 @@ const Settings = () => {
     }
   };
 
+  const activeImage = getProfileImageUrl(previewImage || profileImageUrl);
+
   return (
     <DashboardLayout activeMenu="Settings">
       <div className="max-w-2xl mx-auto py-6 px-4">
@@ -99,10 +112,11 @@ const Settings = () => {
           <div className="px-6 pb-6">
             <div className="flex items-end gap-5 -mt-12 mb-6">
               <div className="relative group">
-                {previewImage ? (
+                {activeImage && !imgError ? (
                   <img
-                    src={previewImage}
+                    src={activeImage}
                     alt="Profile"
+                    onError={() => setImgError(true)}
                     className="w-24 h-24 rounded-2xl object-cover border-4 border-white dark:border-slate-900 shadow-md"
                   />
                 ) : (
@@ -186,8 +200,9 @@ const Settings = () => {
                     onChange={(e) => {
                       setProfileImageUrl(e.target.value);
                       setPreviewImage(e.target.value);
+                      setImgError(false);
                     }}
-                    placeholder="https://example.com/photo.jpg"
+                    placeholder="https://example.com/photo.jpg or upload photo above"
                     className="w-full bg-transparent outline-none text-sm text-slate-900 dark:text-white"
                   />
                 </div>
