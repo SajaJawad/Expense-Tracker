@@ -28,8 +28,18 @@ app.use("/api/v1/income", incomeRoutes);
 app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 
+app.get("/", (req, res) => {
+    res.send("Expense Tracker API Running");
+});
+
 // Serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`Server Running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server Running on port ${PORT}`);
+});
+
+module.exports = app;
+
+setInterval(() => {}, 60000); // Keep event loop active

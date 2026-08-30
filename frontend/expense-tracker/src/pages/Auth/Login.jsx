@@ -52,8 +52,9 @@ const Login = () => {
     } catch (error) {
       console.log(error.response?.data);
       if (error.response && error.response.data.message) {
-        setError("Something went wrong, Please try again")
-
+        setError(error.response.data.message);
+      } else {
+        setError("Something went wrong, Please try again");
       }
     }
   }
