@@ -8,8 +8,7 @@ import uploadImage from '../../utils/uploadImage';
 import AuthLayout from './../../componants/layouts/AuthLayout';
 import ProfilePhotoSelector from './../../componants/Inputs/ProfilePhotoSelector';
 import Input from './../../componants/Inputs/Input';
-
-
+import { LuLoader2 } from 'react-icons/lu';
 
 const SignUp = () => {
   const [profilePic, setProfilePic] = useState(null)
@@ -17,11 +16,11 @@ const SignUp = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const {updateUser}= useContext(UserContext)
 
   const navigate = useNavigate()
-
 
   //Handle Sign up Form Submit
   const handleSignUp = async (e) => {
@@ -46,36 +45,38 @@ const SignUp = () => {
     }
 
     setError("")
+    setIsLoading(true);
 
     //SignUp API call
     try {
 
       //Upload image if present
-if(profilePic){
-  const imgUploadRes= await uploadImage(profilePic)
-  profileImageUrl= imgUploadRes.imageUrl || ""
-}
-
+      if(profilePic){
+        const imgUploadRes= await uploadImage(profilePic)
+        profileImageUrl= imgUploadRes.imageUrl || ""
+      }
 
       const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER ,{
-      fullName,
-      email,
-      password,
-      profileImageUrl
-    });
+        fullName,
+        email,
+        password,
+        profileImageUrl
+      });
 
-    const {token , user}= response.data;
-    if (token) {
-      localStorage.setItem("token" ,token );
-      updateUser(user);
-      navigate("/dashboard")
-    }
+      const {token , user}= response.data;
+      if (token) {
+        localStorage.setItem("token" ,token );
+        updateUser(user);
+        navigate("/dashboard")
+      }
     } catch(error){
       if (error.response && error.response.data.message) {
         setError(error.response.data.message)
       }else {
         setError("Something went wrong. Please try again.")
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -85,9 +86,6 @@ if(profilePic){
       <div className='lg:w-[100%] h-auto md:h-full mt-10 md:mt-0 flex flex-col justify-center '>
         <h3 className='text-xl font-semibold text-black'>Create an Account</h3>
         <p className='text-xs text-slate-700 mt-[5px] mb-6'>Join us today by entering your details below.</p>
-
-
-
 
         <ProfilePhotoSelector image={profilePic} setImage={setProfilePic} />
 
@@ -113,13 +111,24 @@ if(profilePic){
 
             </div>
 
-
           </div>
-
 
           {error && <p className='text-red-500 text-sm mt-2'>{error}</p>}
 
-          <button type='submit' className='ptn-primary'>SIGN UP</button>
+          <button 
+            type='submit' 
+            className='ptn-primary flex items-center justify-center gap-2'
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <LuLoader2 className='animate-spin text-lg' />
+                <span>Signing up...</span>
+              </>
+            ) : (
+              "SIGN UP"
+            )}
+          </button>
 
           <p className='text-[13px] text-slate-800 mt-3'>
             Already have an account?{" "}

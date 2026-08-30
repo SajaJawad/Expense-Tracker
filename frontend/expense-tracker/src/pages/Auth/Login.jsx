@@ -7,11 +7,13 @@ import { API_PATHS } from '../../utils/apiPaths';
 import { UserContext } from '../../context/userContext';
 import AuthLayout from './../../componants/layouts/AuthLayout';
 import Input from './../../componants/Inputs/Input';
+import { LuLoader2 } from 'react-icons/lu';
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const {updateUser} = useContext(UserContext)
 
@@ -32,6 +34,7 @@ const Login = () => {
     }
 
     setError("");
+    setIsLoading(true);
 
     // Login Api Call
     try {
@@ -56,6 +59,8 @@ const Login = () => {
       } else {
         setError("Something went wrong, Please try again");
       }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -85,7 +90,20 @@ const Login = () => {
 
           {error && <p className='text-red-500 text-sm mt-2'>{error}</p>}
 
-          <button type='submit' className='ptn-primary'>LOGIN</button>
+          <button 
+            type='submit' 
+            className='ptn-primary flex items-center justify-center gap-2'
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <LuLoader2 className='animate-spin text-lg' />
+                <span>Logging in...</span>
+              </>
+            ) : (
+              "LOGIN"
+            )}
+          </button>
 
           <p className='text-[13px] text-slate-800 mt-3'>
             Don’t have an account?{" "}
