@@ -7,7 +7,7 @@ import { API_PATHS } from '../../utils/apiPaths';
 import { UserContext } from '../../context/userContext';
 import AuthLayout from './../../componants/layouts/AuthLayout';
 import Input from './../../componants/Inputs/Input';
-import { LuLoader2 } from 'react-icons/lu';
+import { CgSpinner } from 'react-icons/cg';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -97,7 +97,7 @@ const Login = () => {
           >
             {isLoading ? (
               <>
-                <LuLoader2 className='animate-spin text-lg' />
+                <CgSpinner className='animate-spin text-lg' />
                 <span>Logging in...</span>
               </>
             ) : (

@@ -8,7 +8,7 @@ import uploadImage from '../../utils/uploadImage';
 import AuthLayout from './../../componants/layouts/AuthLayout';
 import ProfilePhotoSelector from './../../componants/Inputs/ProfilePhotoSelector';
 import Input from './../../componants/Inputs/Input';
-import { LuLoader2 } from 'react-icons/lu';
+import { CgSpinner } from 'react-icons/cg';
 
 const SignUp = () => {
   const [profilePic, setProfilePic] = useState(null)
@@ -122,7 +122,7 @@ const SignUp = () => {
           >
             {isLoading ? (
               <>
-                <LuLoader2 className='animate-spin text-lg' />
+                <CgSpinner className='animate-spin text-lg' />
                 <span>Signing up...</span>
               </>
             ) : (
