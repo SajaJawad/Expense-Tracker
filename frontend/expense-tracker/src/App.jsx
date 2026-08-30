@@ -1,65 +1,96 @@
-import React from 'react'
-
+import React from 'react';
 import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
 import Home from './pages/Dashboard/Home';
 import Income from './pages/Dashboard/Income';
 import Expense from './pages/Dashboard/Expense';
 import Settings from './pages/Dashboard/Settings';
-import {Toaster} from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast';
 
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate
-} from 'react-router-dom'
+} from 'react-router-dom';
 import UserProvider from './context/userContext';
-import IncomeOverview from './componants/Income/IncomeOverview';
+import { ThemeProvider } from './context/themeContext';
+import { ProtectedRoute, PublicOnlyRoute } from './components/ProtectedRoute';
+
 const App = () => {
-
-
   return (
-    <UserProvider>
-      <div>
+    <ThemeProvider>
+      <UserProvider>
         <Router>
           <Routes>
             <Route path='/' element={<Root />} />
-            <Route path='/login' exact element={<Login />} />
-            <Route path='/signUp' exact element={<SignUp />} />
-            <Route path='/dashboard' exact element={<Home />} />
-            <Route path='/income' exact element={<Income />} />
-            <Route path='/expense' exact element={<Expense />} />
-            <Route path='/settings' exact element={<Settings />} />
+            <Route 
+              path='/login' 
+              element={
+                <PublicOnlyRoute>
+                  <Login />
+                </PublicOnlyRoute>
+              } 
+            />
+            <Route 
+              path='/signup' 
+              element={
+                <PublicOnlyRoute>
+                  <SignUp />
+                </PublicOnlyRoute>
+              } 
+            />
+            <Route 
+              path='/dashboard' 
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path='/income' 
+              element={
+                <ProtectedRoute>
+                  <Income />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path='/expense' 
+              element={
+                <ProtectedRoute>
+                  <Expense />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path='/settings' 
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path='*' element={<Navigate to='/dashboard' replace />} />
           </Routes>
         </Router>
-      </div>
-      <Toaster
-        toastOptions={{
-          className: "",
-          style: {
-            fontSize: '13px'
-          }
-        }}
-      />
-    </UserProvider>
 
-  )
-}
+        <Toaster
+          toastOptions={{
+            style: {
+              fontSize: '13px'
+            }
+          }}
+        />
+      </UserProvider>
+    </ThemeProvider>
+  );
+};
 
-export default App
-
-
+export default App;
 
 const Root = () => {
-  //Check if token exists in localStorage
-  const isAuthenticated = !!localStorage.getItem("token")
-
-  //Redirect to dashboard if authenticated, otherwise to login
-  return isAuthenticated ? (
-    <Navigate to="/dashboard" />
-  ) : (
-    <Navigate to="/login" />
-  )
-
-}
+  const token = localStorage.getItem("token");
+  return token ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+};

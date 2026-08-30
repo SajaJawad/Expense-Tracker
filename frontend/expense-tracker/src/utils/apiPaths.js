@@ -1,7 +1,5 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8000";
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BASE_URL || "http://localhost:8000";
 
-
-//utils/apiPaths.js
 export const API_PATHS = {
     AUTH: {
         LOGIN: "/api/v1/auth/login",
@@ -11,6 +9,21 @@ export const API_PATHS = {
     },
     DASHBOARD: {
         GET_DATA: "/api/v1/dashboard"
+    },
+    BUDGET: {
+        GET_BUDGET: "/api/v1/budget",
+        UPDATE_BUDGET: "/api/v1/budget"
+    },
+    GOALS: {
+        GET_GOALS: "/api/v1/goals",
+        ADD_GOAL: "/api/v1/goals",
+        UPDATE_GOAL: (goalId) => `/api/v1/goals/${goalId}`,
+        DELETE_GOAL: (goalId) => `/api/v1/goals/${goalId}`
+    },
+    RECURRING: {
+        GET_RECURRING: "/api/v1/recurring",
+        ADD_RECURRING: "/api/v1/recurring",
+        DELETE_RECURRING: (id) => `/api/v1/recurring/${id}`
     },
     INCOME: {
         ADD_INCOME: "/api/v1/income/add",
@@ -29,5 +42,4 @@ export const API_PATHS = {
     IMAGE: {
         UPLOAD_IMAGE: "/api/v1/auth/upload-image"
     }
-
-}
+};

@@ -1,90 +1,107 @@
 const supabase = require("../config/supabase");
 
-// Dashboard Data
-exports.getDashboardData = async (req, res) => {
+exports.getDashboardData = async (req, res, next) => {
     try {
         const userId = req.user.id;
 
-        // Fetch all incomes for total calculation
-        const { data: allIncomes, error: incErr } = await supabase
-            .from("incomes")
-            .select("*")
-            .eq("user_id", userId);
-        if (incErr) throw incErr;
+        // Parallel fetching for performance
+        const [allIncomesRes, allExpensesRes, budgetRes] = await Promise.all([
+            supabase.from("incomes").select("*").eq("user_id", userId).order("date", { ascending: false }),
+            supabase.from("expenses").select("*").eq("user_id", userId).order("date", { ascending: false }),
+            supabase.from("budgets").select("*").eq("user_id", userId).maybeSingle()
+        ]);
 
-        // Fetch all expenses for total calculation
-        const { data: allExpenses, error: expErr } = await supabase
-            .from("expenses")
-            .select("*")
-            .eq("user_id", userId);
-        if (expErr) throw expErr;
+        if (allIncomesRes.error) throw allIncomesRes.error;
+        if (allExpensesRes.error) throw allExpensesRes.error;
 
-        const totalIncomeVal = (allIncomes || []).reduce((sum, item) => sum + Number(item.amount), 0);
-        const totalExpenseVal = (allExpenses || []).reduce((sum, item) => sum + Number(item.amount), 0);
+        const allIncomes = allIncomesRes.data || [];
+        const allExpenses = allExpensesRes.data || [];
+        const budgetObj = budgetRes.data || { amount: 0 };
+        const monthlyBudget = Number(budgetObj.amount || 0);
 
-        // Get income transactions in the last 60 days
-        const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
-        const { data: incomeLast60, error: inc60Err } = await supabase
-            .from("incomes")
-            .select("*")
-            .eq("user_id", userId)
-            .gte("date", sixtyDaysAgo)
-            .order("date", { ascending: false });
-        if (inc60Err) throw inc60Err;
+        // Overall Totals
+        const totalIncomeVal = allIncomes.reduce((sum, item) => sum + Number(item.amount), 0);
+        const totalExpenseVal = allExpenses.reduce((sum, item) => sum + Number(item.amount), 0);
+        const totalBalanceVal = totalIncomeVal - totalExpenseVal;
 
-        const formattedIncome60 = (incomeLast60 || []).map(item => ({
-            _id: item.id,
-            id: item.id,
-            userId: item.user_id,
-            icon: item.icon,
-            source: item.source,
-            amount: Number(item.amount),
-            date: item.date,
-            createdAt: item.created_at
-        }));
+        // Current & Previous Month dates calculation
+        const now = new Date();
+        const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
-        const incomeLast60DaysTotal = formattedIncome60.reduce((sum, item) => sum + item.amount, 0);
+        // Filter current month
+        const currentMonthIncomes = allIncomes.filter(i => new Date(i.date) >= startOfCurrentMonth);
+        const currentMonthExpenses = allExpenses.filter(e => new Date(e.date) >= startOfCurrentMonth);
 
-        // Get expense transactions in the last 30 days
-        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-        const { data: expenseLast30, error: exp30Err } = await supabase
-            .from("expenses")
-            .select("*")
-            .eq("user_id", userId)
-            .gte("date", thirtyDaysAgo)
-            .order("date", { ascending: false });
-        if (exp30Err) throw exp30Err;
+        const currentMonthIncomeTotal = currentMonthIncomes.reduce((sum, i) => sum + Number(i.amount), 0);
+        const currentMonthExpenseTotal = currentMonthExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+        const currentMonthNetSavings = currentMonthIncomeTotal - currentMonthExpenseTotal;
+        const currentMonthSavingsRate = currentMonthIncomeTotal > 0 
+            ? Math.max(0, Math.round((currentMonthNetSavings / currentMonthIncomeTotal) * 100))
+            : 0;
 
-        const formattedExpense30 = (expenseLast30 || []).map(item => ({
-            _id: item.id,
-            id: item.id,
-            userId: item.user_id,
-            icon: item.icon,
-            category: item.category,
-            amount: Number(item.amount),
-            date: item.date,
-            createdAt: item.created_at
-        }));
+        // Filter previous month
+        const prevMonthIncomes = allIncomes.filter(i => {
+            const d = new Date(i.date);
+            return d >= startOfPrevMonth && d <= endOfPrevMonth;
+        });
+        const prevMonthExpenses = allExpenses.filter(e => {
+            const d = new Date(e.date);
+            return d >= startOfPrevMonth && d <= endOfPrevMonth;
+        });
 
-        const expenseLast30DaysTotal = formattedExpense30.reduce((sum, item) => sum + item.amount, 0);
+        const prevMonthIncomeTotal = prevMonthIncomes.reduce((sum, i) => sum + Number(i.amount), 0);
+        const prevMonthExpenseTotal = prevMonthExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
-        // Fetch recent 5 incomes and 5 expenses
-        const { data: recentIncomes } = await supabase
-            .from("incomes")
-            .select("*")
-            .eq("user_id", userId)
-            .order("date", { ascending: false })
-            .limit(5);
+        // Calculate Month-over-Month % change
+        const calcPercentChange = (current, previous) => {
+            if (previous === 0) return current > 0 ? 100 : 0;
+            return Math.round(((current - previous) / previous) * 100);
+        };
 
-        const { data: recentExpenses } = await supabase
-            .from("expenses")
-            .select("*")
-            .eq("user_id", userId)
-            .order("date", { ascending: false })
-            .limit(5);
+        const incomeGrowth = calcPercentChange(currentMonthIncomeTotal, prevMonthIncomeTotal);
+        const expenseGrowth = calcPercentChange(currentMonthExpenseTotal, prevMonthExpenseTotal);
 
+        // Category Breakdown for current month
+        const categoryMap = {};
+        allExpenses.forEach(exp => {
+            const cat = exp.category || "Other";
+            categoryMap[cat] = (categoryMap[cat] || 0) + Number(exp.amount);
+        });
+
+        const categoryBreakdown = Object.keys(categoryMap).map(cat => ({
+            category: cat,
+            amount: categoryMap[cat],
+            percentage: totalExpenseVal > 0 ? Math.round((categoryMap[cat] / totalExpenseVal) * 100) : 0
+        })).sort((a, b) => b.amount - a.amount);
+
+        // 6-Month Cash Flow Data
+        const cashFlowData = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthLabel = d.toLocaleString("default", { month: "short" });
+            const startStr = new Date(d.getFullYear(), d.getMonth(), 1);
+            const endStr = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
+
+            const mIncomes = allIncomes
+                .filter(item => { const date = new Date(item.date); return date >= startStr && date <= endStr; })
+                .reduce((s, item) => s + Number(item.amount), 0);
+
+            const mExpenses = allExpenses
+                .filter(item => { const date = new Date(item.date); return date >= startStr && date <= endStr; })
+                .reduce((s, item) => s + Number(item.amount), 0);
+
+            cashFlowData.push({
+                month: monthLabel,
+                income: mIncomes,
+                expense: mExpenses
+            });
+        }
+
+        // Recent 5 Transactions
         const lastTransactions = [
-            ...(recentIncomes || []).map(item => ({
+            ...allIncomes.slice(0, 5).map(item => ({
                 _id: item.id,
                 id: item.id,
                 userId: item.user_id,
@@ -94,7 +111,7 @@ exports.getDashboardData = async (req, res) => {
                 date: item.date,
                 type: "income"
             })),
-            ...(recentExpenses || []).map(item => ({
+            ...allExpenses.slice(0, 5).map(item => ({
                 _id: item.id,
                 id: item.id,
                 userId: item.user_id,
@@ -106,21 +123,55 @@ exports.getDashboardData = async (req, res) => {
             }))
         ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
+        // Financial Insights (Deterministic)
+        const insights = [];
+        if (currentMonthExpenseTotal > 0 && prevMonthExpenseTotal > 0) {
+            if (expenseGrowth > 0) {
+                insights.push(`You spent ${expenseGrowth}% more this month than last month.`);
+            } else if (expenseGrowth < 0) {
+                insights.push(`You spent ${Math.abs(expenseGrowth)}% less this month than last month.`);
+            }
+        }
+
+        if (categoryBreakdown.length > 0) {
+            insights.push(`${categoryBreakdown[0].category} is your largest spending category.`);
+        }
+
+        if (monthlyBudget > 0) {
+            const budgetUsedPct = Math.round((currentMonthExpenseTotal / monthlyBudget) * 100);
+            insights.push(`You have used ${budgetUsedPct}% of your monthly budget.`);
+        }
+
+        if (currentMonthIncomeTotal > 0 && currentMonthSavingsRate > 0) {
+            insights.push(`Your savings rate this month is ${currentMonthSavingsRate}%.`);
+        }
+
+        // Response object
         res.json({
-            totalBalance: totalIncomeVal - totalExpenseVal,
+            totalBalance: totalBalanceVal,
             totalIncome: totalIncomeVal,
             totalExpense: totalExpenseVal,
-            last30DaysExpense: {
-                total: expenseLast30DaysTotal,
-                transactions: formattedExpense30
+            currentMonth: {
+                income: currentMonthIncomeTotal,
+                expense: currentMonthExpenseTotal,
+                netSavings: currentMonthNetSavings,
+                savingsRate: currentMonthSavingsRate,
+                incomeGrowth,
+                expenseGrowth
             },
-            last60DaysIncome: {
-                total: incomeLast60DaysTotal,
-                transactions: formattedIncome60
+            monthlyBudget: {
+                amount: monthlyBudget,
+                spent: currentMonthExpenseTotal,
+                remaining: Math.max(0, monthlyBudget - currentMonthExpenseTotal),
+                percentageUsed: monthlyBudget > 0 ? Math.min(100, Math.round((currentMonthExpenseTotal / monthlyBudget) * 100)) : 0,
+                status: monthlyBudget === 0 ? "none" : (currentMonthExpenseTotal > monthlyBudget ? "over" : (currentMonthExpenseTotal >= monthlyBudget * 0.85 ? "approaching" : "safe"))
             },
-            recentTransactions: lastTransactions
+            categoryBreakdown,
+            cashFlowData,
+            recentTransactions: lastTransactions,
+            insights
         });
     } catch (error) {
-        res.status(500).json({ message: "Server Error", error: error.message });
+        next(error);
     }
 };

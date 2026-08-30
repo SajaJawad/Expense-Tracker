@@ -1,8 +1,8 @@
 import React, { useState, useContext, useRef } from 'react';
-import DashboardLayout from '../../componants/layouts/DashboardLayout';
+import DashboardLayout from '../../components/layouts/DashboardLayout';
 import { UserContext } from '../../context/userContext';
 import { useUserAuth } from '../../hooks/useUserAuth';
-import CharAvatar from '../../componants/Inputs/CharAvatar';
+import CharAvatar from '../../components/Inputs/CharAvatar';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import toast from 'react-hot-toast';
@@ -83,31 +83,31 @@ const Settings = () => {
 
   return (
     <DashboardLayout activeMenu="Settings">
-      <div className="max-w-2xl mx-auto py-10 px-4">
+      <div className="max-w-2xl mx-auto py-6 px-4">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage your account information and preferences</p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Profile Settings</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Manage your personal account details and preferences</p>
         </div>
 
         {/* Profile Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="card p-0 overflow-hidden">
           {/* Top gradient banner */}
-          <div className="h-24 bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500" />
+          <div className="h-28 bg-gradient-to-r from-purple-600 via-indigo-600 to-slate-900" />
 
           {/* Avatar section */}
-          <div className="px-8 pb-8">
-            <div className="flex items-end gap-5 -mt-12 mb-8">
+          <div className="px-6 pb-6">
+            <div className="flex items-end gap-5 -mt-12 mb-6">
               <div className="relative group">
                 {previewImage ? (
                   <img
                     src={previewImage}
                     alt="Profile"
-                    className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-md"
+                    className="w-24 h-24 rounded-2xl object-cover border-4 border-white dark:border-slate-900 shadow-md"
                   />
                 ) : (
-                  <div className="w-24 h-24 rounded-2xl border-4 border-white shadow-md overflow-hidden">
-                    <CharAvatar fullName={user?.fullName} width="w-full" hight="h-full" style="text-2xl" />
+                  <div className="w-24 h-24 rounded-2xl border-4 border-white dark:border-slate-900 shadow-md overflow-hidden bg-purple-100 dark:bg-purple-950">
+                    <CharAvatar fullName={user?.fullName} width="w-full" hight="h-full" style="text-2xl font-bold" />
                   </div>
                 )}
 
@@ -115,7 +115,7 @@ const Settings = () => {
                 <button
                   onClick={handleImageClick}
                   disabled={uploading}
-                  className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                  className="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                 >
                   {uploading ? (
                     <LuLoader className="text-white text-xl animate-spin" />
@@ -126,60 +126,60 @@ const Settings = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
                   className="hidden"
                   onChange={handleFileChange}
                 />
               </div>
 
               <div className="pb-1">
-                <h2 className="text-xl font-bold text-gray-900">{user?.fullName}</h2>
-                <p className="text-sm text-gray-500">{user?.email}</p>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{user?.fullName}</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{user?.email}</p>
               </div>
             </div>
 
             {/* Form Fields */}
-            <div className="space-y-5">
+            <div className="space-y-4">
               {/* Full Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Full Name
                 </label>
-                <div className="relative">
-                  <LuUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <div className="input-box mb-0 mt-0">
+                  <LuUser className="text-slate-400 text-lg" />
                   <input
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Your full name"
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition"
+                    className="w-full bg-transparent outline-none text-sm text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
 
               {/* Email (read-only) */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Email <span className="text-gray-400 font-normal text-xs">(cannot be changed)</span>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Email Address <span className="text-slate-400 font-normal text-xs">(read-only)</span>
                 </label>
-                <div className="relative">
-                  <LuMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <div className="input-box mb-0 mt-0 bg-slate-100 dark:bg-slate-800/40 opacity-70">
+                  <LuMail className="text-slate-400 text-lg" />
                   <input
                     type="email"
                     value={user?.email || ''}
                     readOnly
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-100 rounded-xl text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
+                    className="w-full bg-transparent outline-none text-sm text-slate-500 cursor-not-allowed"
                   />
                 </div>
               </div>
 
               {/* Profile Image URL */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Profile Image URL <span className="text-gray-400 font-normal text-xs">(or upload above)</span>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Profile Image URL
                 </label>
-                <div className="relative">
-                  <LuCamera className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <div className="input-box mb-0 mt-0">
+                  <LuCamera className="text-slate-400 text-lg" />
                   <input
                     type="url"
                     value={profileImageUrl}
@@ -187,39 +187,39 @@ const Settings = () => {
                       setProfileImageUrl(e.target.value);
                       setPreviewImage(e.target.value);
                     }}
-                    placeholder="https://example.com/your-photo.jpg"
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition"
+                    placeholder="https://example.com/photo.jpg"
+                    className="w-full bg-transparent outline-none text-sm text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
             </div>
 
             {/* Save Button */}
-            <div className="mt-8 flex justify-end">
+            <div className="mt-6 flex justify-end">
               <button
                 onClick={handleSave}
                 disabled={saving || uploading}
-                className="flex items-center gap-2 bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium text-sm transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                className="add-btn add-btn-fill flex items-center gap-2 cursor-pointer shadow-md shadow-purple-500/20"
               >
                 {saving ? (
                   <LuLoader className="animate-spin text-base" />
                 ) : (
                   <LuSave className="text-base" />
                 )}
-                {saving ? 'Saving...' : 'Save Changes'}
+                <span>{saving ? 'Saving...' : 'Save Profile'}</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Info card */}
-        <div className="mt-5 bg-violet-50 border border-violet-100 rounded-2xl p-5">
-          <div className="flex items-start gap-3">
-            <LuLock className="text-violet-500 text-lg mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-violet-800">Password & Security</p>
-              <p className="text-xs text-violet-600 mt-0.5">Password change feature coming soon. Your data is secured with JWT authentication.</p>
-            </div>
+        {/* Security Info Card */}
+        <div className="mt-4 p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/40 flex items-start gap-3">
+          <LuLock className="text-purple-600 dark:text-purple-400 text-lg mt-0.5 shrink-0" />
+          <div>
+            <p className="text-xs font-bold text-purple-900 dark:text-purple-200">Security & Authentication</p>
+            <p className="text-xs text-purple-700 dark:text-purple-300/80 mt-0.5">
+              Your profile data is protected with JWT token authentication and bank-grade data isolation.
+            </p>
           </div>
         </div>
       </div>

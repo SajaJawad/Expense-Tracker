@@ -1,25 +1,33 @@
-const multer = require("multer")
+const multer = require("multer");
+const path = require("path");
 
-//Configure storage
+// Configure storage
 const storage = multer.diskStorage({
-    destination: (req , file , cd)=>{
-    cd(null, 'uploads/')
-},
-filename: (req , file, cd)=>{
-    cd(null , `${Date.now()}-${file.originalname}`)
-},
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        const safeExt = ['.jpg', '.jpeg', '.png', '.webp'].includes(ext) ? ext : '.png';
+        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${safeExt}`;
+        cb(null, uniqueName);
+    },
 });
 
-//File filter
-const fileFilter = (req, file, cd)=>{
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    if(allowedTypes.includes(file.mimetype)){
-        cd(null , true);
-    }else{
-        cd(new Error('Only .jpeg, .jpg and .png formats are allowed'), false);
+// File filter (image/jpeg, image/png, image/webp)
+const fileFilter = (req, file, cb) => {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only .jpeg, .jpg, .png and .webp formats are allowed'), false);
     }
-}
+};
 
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5 MB max size
+});
 
-const upload = multer({storage, fileFilter})
-module.exports= upload;
+module.exports = upload;

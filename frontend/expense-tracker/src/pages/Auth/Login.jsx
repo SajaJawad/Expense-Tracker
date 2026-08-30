@@ -1,120 +1,117 @@
-
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { validateEmail } from '../../utils/helper';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { UserContext } from '../../context/userContext';
-import AuthLayout from './../../componants/layouts/AuthLayout';
-import Input from './../../componants/Inputs/Input';
+import AuthLayout from '../../components/layouts/AuthLayout';
+import Input from '../../components/Inputs/Input';
 import { CgSpinner } from 'react-icons/cg';
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const {updateUser} = useContext(UserContext)
-
-  const navigate = useNavigate()
+  const { updateUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   // Handle Login Form Submit
   const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!validateEmail(email)) {
-      setError("Please enter a valid email address.")
+      setError("Please enter a valid email address.");
       return;
     }
 
     if (!password) {
-      setError("Please enter the password");
+      setError("Please enter your password.");
       return;
     }
 
     setError("");
     setIsLoading(true);
 
-    // Login Api Call
     try {
-
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
-        email,
+        email: email.trim(),
         password,
-
       });
+
       const { token, user } = response.data;
 
       if (token) {
         localStorage.setItem("token", token);
-        updateUser(user)
-        navigate("/dashboard")
-         return;
+        updateUser(user);
+        navigate("/dashboard");
+        return;
       }
-    } catch (error) {
-      console.log(error.response?.data);
-      if (error.response && error.response.data.message) {
-        setError(error.response.data.message);
+    } catch (err) {
+      console.error("Login error:", err.response?.data);
+      if (err.response && err.response.data?.message) {
+        setError(err.response.data.message);
       } else {
-        setError("Something went wrong, Please try again");
+        setError("Something went wrong. Please try again.");
       }
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <AuthLayout>
-      <div className='lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center'>
-        <h3 className='text-xl font-semibold text-black'>Welcome Back</h3>
-        <p className='text-xs text-slate-700 mt-[5px] mb-6'>
-          Please Enter your details to log in
+    <AuthLayout
+      title="Welcome back 👋"
+      subtitle="Enter your credentials to access your financial dashboard."
+    >
+      <form onSubmit={handleLogin} className="space-y-4">
+        <Input
+          value={email}
+          onChange={({ target }) => setEmail(target.value)}
+          label="Email Address"
+          placeholder="name@company.com"
+          type="email"
+        />
+
+        <Input
+          value={password}
+          onChange={({ target }) => setPassword(target.value)}
+          label="Password"
+          placeholder="••••••••"
+          type="password"
+        />
+
+        {error && (
+          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400 text-xs font-medium">
+            {error}
+          </div>
+        )}
+
+        <button 
+          type="submit" 
+          className="ptn-primary font-semibold text-sm py-3.5 shadow-lg shadow-purple-600/20 cursor-pointer"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <CgSpinner className="animate-spin text-lg" />
+              <span>Verifying Credentials...</span>
+            </>
+          ) : (
+            "Sign In to Dashboard"
+          )}
+        </button>
+
+        <p className="text-xs text-center text-slate-600 dark:text-slate-400 mt-4">
+          Don’t have an account yet?{" "}
+          <Link className="font-semibold text-purple-600 dark:text-purple-400 hover:underline" to="/signup">
+            Create an Account
+          </Link>
         </p>
-
-        <form onSubmit={handleLogin}>
-          <Input
-            value={email}
-            onChange={({ target }) => setEmail(target.value)}
-            label="Email Address"
-            placeholder='john@example.com'
-            type='text'
-          />
-          <Input
-            value={password}
-            onChange={({ target }) => setPassword(target.value)}
-            label="Password"
-            placeholder='Min 8 Characters'
-            type='password'
-          />
-
-          {error && <p className='text-red-500 text-sm mt-2'>{error}</p>}
-
-          <button 
-            type='submit' 
-            className='ptn-primary flex items-center justify-center gap-2'
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <CgSpinner className='animate-spin text-lg' />
-                <span>Logging in...</span>
-              </>
-            ) : (
-              "LOGIN"
-            )}
-          </button>
-
-          <p className='text-[13px] text-slate-800 mt-3'>
-            Don’t have an account?{" "}
-            <Link className='font-medium text-primary underline' to='/signup'>
-              SignUp
-            </Link>
-          </p>
-        </form>
-      </div>
+      </form>
     </AuthLayout>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

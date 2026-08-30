@@ -1,45 +1,7 @@
-import { useNavigate } from "react-router-dom";
-import { UserContext } from "../context/userContext"
-import { useContext, useEffect } from "react";
-import axiosInstance from './../utils/axiosInstance';
-import { API_PATHS } from "../utils/apiPaths";
+import { useContext } from "react";
+import { UserContext } from "../context/userContext";
 
 export const useUserAuth = () => {
-    const { user, updateUser, clearUser } = useContext(UserContext);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            clearUser();
-            navigate("/login", { replace: true });
-            return;
-        }
-
-        if (user) return;
-
-        let isMounted = true;
-        const fetchUserInfo = async () => {
-            try {
-                const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER_INFO);
-
-                if (isMounted && response.data) {
-                    updateUser(response.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch user info :", error);
-
-                if (isMounted) {
-                    clearUser();
-                    navigate("/login", { replace: true });
-                }
-            }
-        };
-
-        fetchUserInfo();
-        return () => {
-            isMounted = false;
-        };
-    }, [user, updateUser, clearUser, navigate]);
+    const { user, updateUser, clearUser, isAuthLoading } = useContext(UserContext);
+    return { user, updateUser, clearUser, isAuthLoading };
 };
-
