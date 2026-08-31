@@ -12,9 +12,11 @@ import DeleteAlert from '../../components/DeleteAlert';
 import FilterToolbar from '../../components/FilterToolbar';
 import { EXPENSE_CATEGORIES } from '../../utils/categories';
 import { LuPlus, LuReceipt } from 'react-icons/lu';
+import { useLanguage } from '../../context/LanguageContext';
 
 const Expense = () => {
   useUserAuth();
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(false);
   const [expenseData, setExpenseData] = useState([]);
@@ -50,8 +52,7 @@ const Expense = () => {
         }
       }
     } catch (error) {
-      console.error("Error fetching expense:", error);
-      toast.error("Failed to load expense data");
+      console.log("Error fetching expenses: ", error);
     } finally {
       setLoading(false);
     }
@@ -61,60 +62,60 @@ const Expense = () => {
     fetchExpenseDetails(filters, 1);
   }, [filters, fetchExpenseDetails]);
 
-  // Handle Add Expense
+  // Add Expense
   const handleAddExpense = async (expense) => {
     const { category, amount, date, icon } = expense;
 
-    if (!category || !category.trim()) {
-      toast.error("Category is required.");
+    if (!category.trim()) {
+      toast.error("Please enter a category");
       return;
     }
-
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      toast.error("Amount should be a valid number greater than 0.");
+      toast.error("Please enter a valid amount");
       return;
     }
-
     if (!date) {
-      toast.error("Date is required.");
+      toast.error("Please select a date");
       return;
     }
 
     try {
       await axiosInstance.post(API_PATHS.EXPENSE.ADD_EXPENSE, {
-        category: category.trim(),
+        category,
         amount: Number(amount),
         date,
         icon
       });
       setOpenAddExpenseModal(false);
-      toast.success("Expense added successfully");
-      fetchExpenseDetails(filters, 1);
+      toast.success("Expense recorded successfully");
+      fetchExpenseDetails(filters, pagination.page);
     } catch (error) {
       console.error("Error adding expense:", error.response?.data?.message || error.message);
-      toast.error(error.response?.data?.message || "Failed to add expense");
+      toast.error(error.response?.data?.message || "Failed to record expense");
     }
   };
 
-  // Handle Edit Expense
+  // Edit Expense
   const handleEditExpense = async (expense) => {
     const { category, amount, date, icon } = expense;
-    const item = openEditModal.data;
-    if (!item) return;
+    const id = openEditModal.data?._id || openEditModal.data?.id;
 
-    if (!category || !category.trim()) {
-      toast.error("Category is required.");
+    if (!category.trim()) {
+      toast.error("Please enter a category");
       return;
     }
-
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      toast.error("Amount should be a valid number greater than 0.");
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    if (!date) {
+      toast.error("Please select a date");
       return;
     }
 
     try {
-      await axiosInstance.put(API_PATHS.EXPENSE.UPDATE_EXPENSE(item._id || item.id), {
-        category: category.trim(),
+      await axiosInstance.put(API_PATHS.EXPENSE.EDIT_EXPENSE(id), {
+        category,
         amount: Number(amount),
         date,
         icon
@@ -158,30 +159,31 @@ const Expense = () => {
       window.URL.revokeObjectURL(url);
       toast.success("Excel report downloaded");
     } catch (error) {
-      console.error("Error downloading expense details: ", error);
-      toast.error("Failed to download expense details. Please try again.");
+      console.error("Error downloading expense details:", error);
+      toast.error("Failed to download expense details");
     }
   };
 
   return (
     <DashboardLayout activeMenu="Expense">
-      <div className='my-2 mx-auto space-y-6'>
-        
-        {/* Page Header Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-rose-900 via-purple-950 to-slate-950 text-white p-6 sm:p-8 rounded-2xl shadow-xl relative overflow-hidden">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-rose-200 border border-white/15">
-              <LuReceipt className="text-rose-300" /> Expense Tracker
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Expense Management</h2>
-            <p className="text-xs sm:text-sm text-rose-100/80">Understand where your money goes and analyze category spending.</p>
+      <div className="my-5 mx-auto">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <LuReceipt className="text-rose-600 dark:text-rose-400" />
+              {t('navExpense')}
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+              {t('detailedSpendingRecord')}
+            </p>
           </div>
 
           <button
             onClick={() => setOpenAddExpenseModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/30 transition-all cursor-pointer active:scale-95"
           >
-            <LuPlus className="text-base" /> Record Expense
+            <LuPlus className="text-base" /> {t('recordExpense')}
           </button>
         </div>
 
@@ -211,7 +213,7 @@ const Expense = () => {
         <Modal
           isOpen={openAddExpenseModal}
           onClose={() => setOpenAddExpenseModal(false)}
-          title="Add Expense"
+          title={t('recordExpense')}
         >
           <AddExpenseForm onAddExpense={handleAddExpense} />
         </Modal>
@@ -220,7 +222,7 @@ const Expense = () => {
         <Modal
           isOpen={openEditModal.show}
           onClose={() => setOpenEditModal({ show: false, data: null })}
-          title="Edit Expense"
+          title={t('editExpense')}
         >
           <AddExpenseForm
             initialData={openEditModal.data}
@@ -232,10 +234,10 @@ const Expense = () => {
         <Modal
           isOpen={openDeleteAlert.show}
           onClose={() => setOpenDeleteAlert({ show: false, data: null })}
-          title="Delete Expense"
+          title={t('deleteExpense')}
         >
           <DeleteAlert
-            content="Are you sure you want to delete this expense detail?"
+            content={t('confirmDeleteExpense')}
             onDelete={() => deleteExpense(openDeleteAlert.data)}
           />
         </Modal>

@@ -30,16 +30,16 @@ const Modal = ({ children, isOpen, onClose, title }) => {
       aria-labelledby="modal-title"
     >
       <div 
-        className='relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-white rounded-xl shadow-xl overflow-hidden'
+        className='relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors'
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className='flex items-center justify-between p-4 md:p-5 border-b border-gray-100 bg-white sticky top-0 z-10'>
-          <h3 id="modal-title" className='text-lg font-semibold text-gray-900'>{title}</h3>
+        <div className='flex items-center justify-between p-4 md:p-5 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10'>
+          <h3 id="modal-title" className='text-lg font-semibold text-gray-900 dark:text-white'>{title}</h3>
 
           <button 
             type='button' 
-            className='text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors cursor-pointer' 
+            className='text-gray-400 dark:text-slate-400 bg-transparent hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors cursor-pointer' 
             onClick={onClose}
             aria-label="Close modal"
           >

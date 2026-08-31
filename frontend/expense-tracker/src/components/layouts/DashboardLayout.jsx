@@ -13,7 +13,7 @@ const DashboardLayout = ({ children, activeMenu }) => {
       {user && (
         <div className="flex max-w-7xl mx-auto items-start">
           {/* Fixed Desktop Sidebar */}
-          <aside className="hidden lg:block shrink-0 sticky top-[61px] h-[calc(100vh-61px)] self-start">
+          <aside className="hidden lg:block w-64 shrink-0 sticky top-[61px] h-[calc(100vh-61px)] self-start">
             <SideMenu activeMenu={activeMenu} />
           </aside>
 

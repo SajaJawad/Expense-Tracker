@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import { UserContext } from '../../context/userContext';
 import { useUserAuth } from '../../hooks/useUserAuth';
+import { useLanguage } from '../../context/LanguageContext';
 import CharAvatar from '../../components/Inputs/CharAvatar';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
@@ -13,6 +14,7 @@ const Settings = () => {
   useUserAuth();
 
   const { user, updateUser } = useContext(UserContext);
+  const { t } = useLanguage();
   const fileInputRef = useRef(null);
 
   const [fullName, setFullName] = useState(user?.fullName || '');
@@ -84,7 +86,7 @@ const Settings = () => {
       });
 
       updateUser(res.data.user);
-      toast.success('Profile updated successfully!');
+      toast.success(t('profileUpdated'));
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to update profile');
     } finally {
@@ -99,8 +101,8 @@ const Settings = () => {
       <div className="max-w-2xl mx-auto py-6 px-4">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Profile Settings</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Manage your personal account details and preferences</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{t('accountSettings')}</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">{t('manageProfilePrefs')}</p>
         </div>
 
         {/* Profile Card */}
@@ -157,7 +159,7 @@ const Settings = () => {
               {/* Full Name */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Full Name
+                  {t('fullName')}
                 </label>
                 <div className="input-box mb-0 mt-0">
                   <LuUser className="text-slate-400 text-lg" />
@@ -165,7 +167,7 @@ const Settings = () => {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Your full name"
+                    placeholder={t('fullName')}
                     className="w-full bg-transparent outline-none text-sm text-slate-900 dark:text-white"
                   />
                 </div>
@@ -174,7 +176,7 @@ const Settings = () => {
               {/* Email (read-only) */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Email Address <span className="text-slate-400 font-normal text-xs">(read-only)</span>
+                  {t('emailAddress')}
                 </label>
                 <div className="input-box mb-0 mt-0 bg-slate-100 dark:bg-slate-800/40 opacity-70">
                   <LuMail className="text-slate-400 text-lg" />
@@ -190,7 +192,7 @@ const Settings = () => {
               {/* Profile Image URL */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Profile Image URL
+                  {t('icon')} URL
                 </label>
                 <div className="input-box mb-0 mt-0">
                   <LuCamera className="text-slate-400 text-lg" />
@@ -202,7 +204,7 @@ const Settings = () => {
                       setPreviewImage(e.target.value);
                       setImgError(false);
                     }}
-                    placeholder="https://example.com/photo.jpg or upload photo above"
+                    placeholder="https://example.com/photo.jpg"
                     className="w-full bg-transparent outline-none text-sm text-slate-900 dark:text-white"
                   />
                 </div>
@@ -221,7 +223,7 @@ const Settings = () => {
                 ) : (
                   <LuSave className="text-base" />
                 )}
-                <span>{saving ? 'Saving...' : 'Save Profile'}</span>
+                <span>{saving ? t('loading') : t('saveChanges')}</span>
               </button>
             </div>
           </div>

@@ -35,12 +35,18 @@ const CustomBarChart = ({ data = [] }) => {
   return (
     <div className='w-full h-72'>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
-          <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#64748b" }} stroke="none" />
-          <YAxis tick={{ fontSize: 11, fill: "#64748b" }} stroke="none" />
-          <Tooltip content={<CustomToolTip />} />
-          <Bar dataKey="amount" fill='#875cf5' radius={[8, 8, 0, 0]}>
+        <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-slate-200 dark:stroke-slate-800" opacity={0.5} />
+          <XAxis dataKey="month" tick={{ fontSize: 11, fill: "currentColor" }} className="text-slate-500 dark:text-slate-300" stroke="none" />
+          <YAxis 
+            tick={{ fontSize: 11, fill: "currentColor" }} 
+            className="text-slate-500 dark:text-slate-300" 
+            stroke="none" 
+            width={48} 
+            tickFormatter={(val) => val.toLocaleString()}
+          />
+          <Tooltip content={<CustomToolTip />} cursor={{ fill: 'rgba(135, 92, 245, 0.08)', rx: 8 }} />
+          <Bar dataKey="amount" fill='#875cf5' radius={[8, 8, 0, 0]} maxBarSize={85}>
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={getBarColor(index)} />
             ))}

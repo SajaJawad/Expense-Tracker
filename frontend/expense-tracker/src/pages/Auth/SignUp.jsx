@@ -4,6 +4,7 @@ import { validateEmail } from '../../utils/helper';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { UserContext } from '../../context/userContext';
+import { useLanguage } from '../../context/LanguageContext';
 import uploadImage from '../../utils/uploadImage';
 import AuthLayout from '../../components/layouts/AuthLayout';
 import ProfilePhotoSelector from '../../components/Inputs/ProfilePhotoSelector';
@@ -19,6 +20,7 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { updateUser } = useContext(UserContext);
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   // Handle Sign up Form Submit
@@ -78,8 +80,8 @@ const SignUp = () => {
 
   return (
     <AuthLayout
-      title="Create your account 🚀"
-      subtitle="Start tracking expenses, building budgets, and analyzing growth."
+      title={t('signupTitle')}
+      subtitle={t('signupSubtitle')}
       isSignUp={true}
     >
       <form onSubmit={handleSignUp} className="space-y-4">
@@ -89,14 +91,14 @@ const SignUp = () => {
           <Input 
             value={fullName} 
             onChange={({ target }) => setFullName(target.value)} 
-            label="Full Name" 
-            placeholder="John Doe" 
+            label={t('fullName')} 
+            placeholder={t('fullName')} 
             type="text" 
           />
           <Input
             value={email}
             onChange={({ target }) => setEmail(target.value)}
-            label="Email Address"
+            label={t('emailAddress')}
             placeholder='name@company.com'
             type='email'
           />
@@ -105,8 +107,8 @@ const SignUp = () => {
         <Input
           value={password}
           onChange={({ target }) => setPassword(target.value)}
-          label="Password"
-          placeholder='At least 8 characters'
+          label={t('password')}
+          placeholder='••••••••'
           type='password'
         />
 
@@ -124,17 +126,17 @@ const SignUp = () => {
           {isLoading ? (
             <>
               <CgSpinner className='animate-spin text-lg' />
-              <span>Creating Account...</span>
+              <span>{t('loading')}</span>
             </>
           ) : (
-            "Create Account"
+            t('signUpBtn')
           )}
         </button>
 
         <p className='text-xs text-center text-slate-600 dark:text-slate-400 mt-4'>
-          Already have an account?{" "}
+          {t('hasAccount')}{" "}
           <Link className='font-semibold text-purple-600 dark:text-purple-400 hover:underline' to='/login'>
-            Sign In
+            {t('loginLink')}
           </Link>
         </p>
       </form>

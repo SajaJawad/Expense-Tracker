@@ -29,16 +29,22 @@ const CustomLineChart = ({ data = [] }) => {
   return (
     <div className='w-full h-72'>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id='incomeGradient' x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor='#875cf5' stopOpacity={0.4} />
               <stop offset="95%" stopColor='#875cf5' stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
-          <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#64748b" }} stroke="none" />
-          <YAxis tick={{ fontSize: 11, fill: "#64748b" }} stroke="none" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-slate-200 dark:stroke-slate-800" opacity={0.5} />
+          <XAxis dataKey="month" tick={{ fontSize: 11, fill: "currentColor" }} className="text-slate-500 dark:text-slate-300" stroke="none" />
+          <YAxis 
+            tick={{ fontSize: 11, fill: "currentColor" }} 
+            className="text-slate-500 dark:text-slate-300" 
+            stroke="none" 
+            width={48} 
+            tickFormatter={(val) => val.toLocaleString()}
+          />
           <Tooltip content={<CustomToolTip />} />
           <Area 
             type="monotone" 

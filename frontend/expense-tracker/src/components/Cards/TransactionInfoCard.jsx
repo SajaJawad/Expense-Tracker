@@ -1,9 +1,15 @@
 import React from 'react';
 import { LuPencil, LuTrash2, LuTrendingDown, LuTrendingUp, LuWallet } from "react-icons/lu";
 import { formatCurrency } from '../../utils/formatCurrency';
+import { useLanguage } from '../../context/LanguageContext';
+import { translateCategory, formatLocalizedDate } from '../../utils/translations';
 
 const TransactionInfoCard = ({ title, tittle, icon, date, amount, types, hideDeleteBtn, onDelete, onEdit }) => {
-  const displayTitle = title || tittle || "Transaction";
+  const { language } = useLanguage();
+  const rawTitle = title || tittle || "Transaction";
+  const displayTitle = translateCategory(rawTitle, language);
+  const formattedDate = formatLocalizedDate(date, language);
+
   const getAmountStyles = () => types === "income" 
     ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60" 
     : "bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/60";
@@ -25,7 +31,7 @@ const TransactionInfoCard = ({ title, tittle, icon, date, amount, types, hideDel
       <div className='flex-1 flex items-center justify-between min-w-0'>
         <div className='truncate pr-2'>
           <p className='text-xs font-bold text-slate-900 dark:text-slate-100 truncate'>{displayTitle}</p>
-          <p className='text-[11px] text-slate-400 dark:text-slate-500 mt-0.5'>{date}</p>
+          <p className='text-[11px] font-medium text-slate-500 dark:text-slate-300 mt-0.5'>{formattedDate}</p>
         </div>
 
         <div className='flex items-center gap-2 shrink-0'>

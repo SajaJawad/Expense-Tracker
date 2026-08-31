@@ -1,0 +1,10 @@
+{
+  "name": "expense-tracker-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend/expense-tracker run dev\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend/expense-tracker run dev"
+  }
+}

@@ -1,8 +1,10 @@
 import React from 'react';
 import { useCountUp } from '../../hooks/useCountUp';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { useLanguage } from '../../context/LanguageContext';
 
 const InfoCard = ({ icon, label, rawValue = 0, value, containerBg = "bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400", growth }) => {
+  const { t } = useLanguage();
   const numericVal = typeof rawValue === 'number' && !isNaN(rawValue) 
     ? rawValue 
     : parseFloat(String(value || "0").replace(/[^0-9.-]+/g, "")) || 0;
@@ -13,7 +15,7 @@ const InfoCard = ({ icon, label, rawValue = 0, value, containerBg = "bg-purple-1
     <div className="card group hover:-translate-y-1 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider">
             {label}
           </span>
           
@@ -30,7 +32,7 @@ const InfoCard = ({ icon, label, rawValue = 0, value, containerBg = "bg-purple-1
               }`}>
                 {growth >= 0 ? `↑ +${growth}%` : `↓ ${growth}%`}
               </span>
-              <span className="text-[11px] text-slate-400 dark:text-slate-500">vs last month</span>
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-300">{t('vsLastMonth')}</span>
             </div>
           )}
         </div>

@@ -24,7 +24,7 @@ const CustomPieChart = ({ data = [], label, totalAmount, colors = ["#875CF5", "#
                         dataKey="amount"
                         nameKey="name"
                         cx="50%"
-                        cy="50%"
+                        cy="53%"
                         outerRadius={85}
                         innerRadius={60}
                         paddingAngle={3}
@@ -41,23 +41,23 @@ const CustomPieChart = ({ data = [], label, totalAmount, colors = ["#875CF5", "#
                         <>
                             <text
                                 x="50%"
-                                y="50%"
-                                dy={-10}
+                                y="38%"
+                                dy={-6}
                                 textAnchor='middle'
-                                fill='#64748b'
+                                className='fill-slate-500 dark:fill-slate-300'
                                 fontSize="11px"
-                                fontWeight="500"
+                                fontWeight="600"
                             >
                                 {label}
                             </text>
                             <text
                                 x="50%"
-                                y="50%"
+                                y="38%"
                                 dy={14}
                                 textAnchor='middle'
-                                fill='#1e293b'
+                                className='fill-slate-900 dark:fill-white'
                                 fontSize="16px"
-                                fontWeight="700"
+                                fontWeight="800"
                             >
                                 {totalAmount}
                             </text>

@@ -12,9 +12,11 @@ import FilterToolbar from '../../components/FilterToolbar';
 import { INCOME_SOURCES } from '../../utils/categories';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import { LuPlus, LuWallet } from 'react-icons/lu';
+import { useLanguage } from '../../context/LanguageContext';
 
 const Income = () => {
   useUserAuth();
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(false);
   const [incomeData, setIncomeData] = useState([]);
@@ -50,8 +52,7 @@ const Income = () => {
         }
       }
     } catch (error) {
-      console.error("Error fetching income:", error);
-      toast.error("Failed to load income data");
+      console.log("Error fetching income: ", error);
     } finally {
       setLoading(false);
     }
@@ -61,60 +62,60 @@ const Income = () => {
     fetchIncomeDetails(filters, 1);
   }, [filters, fetchIncomeDetails]);
 
-  // Handle Add Income
+  // Add Income
   const handleAddIncome = async (income) => {
     const { source, amount, date, icon } = income;
 
-    if (!source || !source.trim()) {
-      toast.error("Income source is required.");
+    if (!source.trim()) {
+      toast.error("Please enter an income source");
       return;
     }
-
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      toast.error("Amount must be a valid number greater than 0.");
+      toast.error("Please enter a valid amount");
       return;
     }
-
     if (!date) {
-      toast.error("Date is required.");
+      toast.error("Please select a date");
       return;
     }
 
     try {
       await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {
-        source: source.trim(),
+        source,
         amount: Number(amount),
         date,
         icon
       });
       setOpenAddIncomeModal(false);
       toast.success("Income added successfully");
-      fetchIncomeDetails(filters, 1);
+      fetchIncomeDetails(filters, pagination.page);
     } catch (error) {
       console.error("Error adding income:", error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || "Failed to add income");
     }
   };
 
-  // Handle Edit Income
+  // Edit Income
   const handleEditIncome = async (income) => {
     const { source, amount, date, icon } = income;
-    const item = openEditModal.data;
-    if (!item) return;
+    const id = openEditModal.data?._id || openEditModal.data?.id;
 
-    if (!source || !source.trim()) {
-      toast.error("Income source is required.");
+    if (!source.trim()) {
+      toast.error("Please enter an income source");
       return;
     }
-
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      toast.error("Amount must be a valid number greater than 0.");
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    if (!date) {
+      toast.error("Please select a date");
       return;
     }
 
     try {
-      await axiosInstance.put(API_PATHS.INCOME.UPDATE_INCOME(item._id || item.id), {
-        source: source.trim(),
+      await axiosInstance.put(API_PATHS.INCOME.EDIT_INCOME(id), {
+        source,
         amount: Number(amount),
         date,
         icon
@@ -141,7 +142,7 @@ const Income = () => {
     }
   };
 
-  // Download Income Excel
+  // Handle Download Income Details
   const handleDownloadIncomeDetails = async () => {
     try {
       const response = await axiosInstance.get(API_PATHS.INCOME.DOWNLOAD_INCOME, {
@@ -158,30 +159,31 @@ const Income = () => {
       window.URL.revokeObjectURL(url);
       toast.success("Excel report downloaded");
     } catch (error) {
-      console.error("Error downloading income details: ", error);
-      toast.error("Failed to download income details. Please try again.");
+      console.error("Error downloading income details:", error);
+      toast.error("Failed to download income details");
     }
   };
 
   return (
     <DashboardLayout activeMenu="Income">
-      <div className='my-2 mx-auto space-y-6'>
-        
-        {/* Page Header Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-xl relative overflow-hidden">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-purple-200 border border-white/15">
-              <LuWallet className="text-purple-300" /> Income Hub
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Income Analytics</h2>
-            <p className="text-xs sm:text-sm text-purple-100/80">Track and manage your earnings across multiple sources.</p>
+      <div className="my-5 mx-auto">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <LuWallet className="text-emerald-600 dark:text-emerald-400" />
+              {t('navIncome')}
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+              {t('detailedIncomeRecord')}
+            </p>
           </div>
 
           <button
             onClick={() => setOpenAddIncomeModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
           >
-            <LuPlus className="text-base" /> Add Income Source
+            <LuPlus className="text-base" /> {t('addIncome')}
           </button>
         </div>
 
@@ -211,7 +213,7 @@ const Income = () => {
         <Modal
           isOpen={openAddIncomeModal}
           onClose={() => setOpenAddIncomeModal(false)}
-          title="Add Income"
+          title={t('addIncome')}
         >
           <AddIncomeForm onAddIncome={handleAddIncome} />
         </Modal>
@@ -220,7 +222,7 @@ const Income = () => {
         <Modal
           isOpen={openEditModal.show}
           onClose={() => setOpenEditModal({ show: false, data: null })}
-          title="Edit Income"
+          title={t('editIncome')}
         >
           <AddIncomeForm
             initialData={openEditModal.data}
@@ -232,10 +234,10 @@ const Income = () => {
         <Modal
           isOpen={openDeleteAlert.show}
           onClose={() => setOpenDeleteAlert({ show: false, data: null })}
-          title="Delete Income"
+          title={t('deleteIncome')}
         >
           <DeleteAlert
-            content="Are you sure you want to delete this income detail?"
+            content={t('confirmDeleteIncome')}
             onDelete={() => deleteIncome(openDeleteAlert.data)}
           />
         </Modal>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { LuShieldCheck } from 'react-icons/lu';
 import ThemeToggle from '../ThemeToggle';
+import LanguageToggle from '../LanguageToggle';
 import BrandLogo from '../BrandLogo';
 import FinTechLoginIllustration from '../illustrations/FinTechLoginIllustration';
 import FinTechSignupIllustration from '../illustrations/FinTechSignupIllustration';
@@ -14,8 +15,8 @@ const AuthLayout = ({
   return (
     <div className='min-h-screen flex w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-200'>
       
-      {/* Left side: 55% FinTech Visual Hero Panel (Desktop) */}
-      <div className='hidden lg:flex lg:w-[55%] relative bg-gradient-to-br from-purple-950 via-indigo-950 to-slate-950 text-white p-12 flex-col justify-between overflow-hidden shadow-2xl'>
+      {/* Visual Hero Panel (Desktop) - Always LTR for crisp English illustration & text */}
+      <div className='hidden lg:flex lg:w-[55%] relative bg-gradient-to-br from-purple-950 via-indigo-950 to-slate-950 text-white p-12 flex-col justify-between overflow-hidden shadow-2xl ltr text-left' dir="ltr">
         
         {/* Subtle decorative radial gradients */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl -translate-x-1/3 -translate-y-1/3 pointer-events-none" />
@@ -24,7 +25,7 @@ const AuthLayout = ({
 
         {/* Branding Logo */}
         <div className="relative z-10 flex items-center">
-          <BrandLogo size="normal" showBadge={true} />
+          <BrandLogo size="normal" showBadge={true} forceWhiteText={true} />
         </div>
 
         {/* Centered Illustration Showcase */}
@@ -51,16 +52,17 @@ const AuthLayout = ({
         </div>
       </div>
 
-      {/* Right side: 45% Form Panel */}
+      {/* Form Panel */}
       <div className='w-full lg:w-[45%] flex flex-col justify-between p-6 sm:p-12 relative'>
         
-        {/* Header Theme Toggle & Mobile Logo */}
+        {/* Header Toggles & Mobile Logo */}
         <div className="flex items-center justify-between w-full mb-8">
           <div className="flex lg:hidden items-center gap-2.5">
             <BrandLogo size="small" showBadge={false} />
           </div>
 
-          <div className="ml-auto">
+          <div className="flex items-center gap-3 ltr:ml-auto rtl:mr-auto">
+            <LanguageToggle />
             <ThemeToggle />
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LuSearch, LuSlidersHorizontal, LuRotateCcw } from 'react-icons/lu';
+import { useLanguage } from '../context/LanguageContext';
 
 const FilterToolbar = ({ 
   categories = [], 
@@ -7,6 +8,7 @@ const FilterToolbar = ({
   onFilterChange,
   onReset
 }) => {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [fromDate, setFromDate] = useState("");
@@ -48,7 +50,7 @@ const FilterToolbar = ({
           <LuSearch className='text-slate-400 dark:text-slate-500 text-base shrink-0' />
           <input 
             type="text" 
-            placeholder={`Search ${categoryLabel.toLowerCase()}...`}
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -68,9 +70,9 @@ const FilterToolbar = ({
             }}
             className='bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer'
           >
-            <option value="">All {categoryLabel}s</option>
+            <option value="" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{categoryLabel === 'Source' ? t('allSources') : t('allCategories')}</option>
             {categories.map((cat, i) => (
-              <option key={i} value={cat.label || cat}>
+              <option key={i} value={cat.label || cat} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                 {cat.icon ? `${cat.icon} ` : ''}{cat.label || cat}
               </option>
             ))}
@@ -86,10 +88,10 @@ const FilterToolbar = ({
           }}
           className='bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer'
         >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="highest">Highest Amount</option>
-          <option value="lowest">Lowest Amount</option>
+          <option value="newest" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('sortNewest')}</option>
+          <option value="oldest" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('sortOldest')}</option>
+          <option value="highest" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('sortHighest')}</option>
+          <option value="lowest" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('sortLowest')}</option>
         </select>
 
         {/* Advanced Filters Toggle */}
@@ -100,7 +102,7 @@ const FilterToolbar = ({
             showAdvanced ? 'bg-purple-50 dark:bg-purple-950/50 border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400' : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
         >
-          <LuSlidersHorizontal className='text-sm' /> Filters
+          <LuSlidersHorizontal className='text-sm' /> {t('filtersToggle')}
         </button>
 
         {/* Reset Button */}
@@ -109,7 +111,7 @@ const FilterToolbar = ({
           onClick={handleReset}
           className='flex items-center gap-2 text-xs font-semibold px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer'
         >
-          <LuRotateCcw className='text-sm' /> Reset
+          <LuRotateCcw className='text-sm' /> {t('resetFilters')}
         </button>
       </div>
 
@@ -117,7 +119,7 @@ const FilterToolbar = ({
       {showAdvanced && (
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800'>
           <div>
-            <label className='block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1'>From Date</label>
+            <label className='block text-[11px] font-semibold text-slate-500 dark:text-slate-300 mb-1'>{t('fromDate')}</label>
             <input 
               type="date" 
               value={fromDate}
@@ -126,7 +128,7 @@ const FilterToolbar = ({
             />
           </div>
           <div>
-            <label className='block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1'>To Date</label>
+            <label className='block text-[11px] font-semibold text-slate-500 dark:text-slate-300 mb-1'>{t('toDate')}</label>
             <input 
               type="date" 
               value={toDate}
@@ -135,7 +137,7 @@ const FilterToolbar = ({
             />
           </div>
           <div>
-            <label className='block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1'>Min Amount ($)</label>
+            <label className='block text-[11px] font-semibold text-slate-500 dark:text-slate-300 mb-1'>{t('minAmount')}</label>
             <input 
               type="number" 
               placeholder="0"
@@ -145,7 +147,7 @@ const FilterToolbar = ({
             />
           </div>
           <div>
-            <label className='block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1'>Max Amount ($)</label>
+            <label className='block text-[11px] font-semibold text-slate-500 dark:text-slate-300 mb-1'>{t('maxAmount')}</label>
             <input 
               type="number" 
               placeholder="Any"

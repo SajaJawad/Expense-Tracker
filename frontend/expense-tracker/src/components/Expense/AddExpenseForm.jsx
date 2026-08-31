@@ -4,8 +4,11 @@ import Input from './../Inputs/Input';
 import moment from 'moment';
 import { EXPENSE_CATEGORIES } from '../../utils/categories';
 import { CgSpinner } from 'react-icons/cg';
+import { useLanguage } from '../../context/LanguageContext';
+import { translateCategory } from '../../utils/translations';
 
 const AddExpenseForm = ({ onAddExpense, initialData }) => {
+    const { t, language } = useLanguage();
     const [expense, setExpense] = useState({
         category: "",
         amount: "",
@@ -30,7 +33,7 @@ const AddExpenseForm = ({ onAddExpense, initialData }) => {
     const handleSelectPreset = (catObj) => {
         setExpense({
             ...expense,
-            category: catObj.label,
+            category: translateCategory(catObj.label, language),
             icon: catObj.icon
         });
     };
@@ -48,23 +51,27 @@ const AddExpenseForm = ({ onAddExpense, initialData }) => {
         <div>
             {/* Quick preset selector */}
             <div className="mb-4">
-                <label className="block text-xs font-medium text-slate-600 mb-2">Quick Category Presets</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">{t('selectCategory')}</label>
                 <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto pr-1">
-                    {EXPENSE_CATEGORIES.map((item, i) => (
-                        <button
-                            key={i}
-                            type="button"
-                            onClick={() => handleSelectPreset(item)}
-                            className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer ${
-                                expense.category === item.label
-                                    ? 'bg-purple-100 border-purple-300 text-purple-700 font-medium'
-                                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                            }`}
-                        >
-                            <span>{item.icon}</span>
-                            <span>{item.label}</span>
-                        </button>
-                    ))}
+                    {EXPENSE_CATEGORIES.map((item, i) => {
+                        const itemTranslated = translateCategory(item.label, language);
+                        const isSelected = expense.category === item.label || expense.category === itemTranslated;
+                        return (
+                            <button
+                                key={i}
+                                type="button"
+                                onClick={() => handleSelectPreset(item)}
+                                className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer ${
+                                    isSelected
+                                        ? 'bg-purple-100 dark:bg-purple-950/80 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 font-semibold'
+                                        : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                }`}
+                            >
+                                <span>{item.icon}</span>
+                                <span>{itemTranslated}</span>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -79,8 +86,8 @@ const AddExpenseForm = ({ onAddExpense, initialData }) => {
                     <Input
                         value={expense.category}
                         onChange={({ target }) => handleChange("category", target.value)}
-                        label="Expense Category"
-                        placeholder="Rent, Groceries, etc"
+                        label={t('category')}
+                        placeholder={t('selectCategory')}
                         type="text"
                     />
                 </div>
@@ -89,14 +96,14 @@ const AddExpenseForm = ({ onAddExpense, initialData }) => {
             <Input
                 value={expense.amount}
                 onChange={({ target }) => handleChange("amount", target.value)}
-                label="Amount ($)"
+                label={t('amount')}
                 placeholder="0.00"
                 type="number"
             />
             <Input
                 value={expense.date}
                 onChange={({ target }) => handleChange("date", target.value)}
-                label="Date"
+                label={t('date')}
                 placeholder=""
                 type="date"
             />
@@ -111,10 +118,10 @@ const AddExpenseForm = ({ onAddExpense, initialData }) => {
                     {isSubmitting ? (
                         <>
                             <CgSpinner className="animate-spin text-base" />
-                            <span>Processing...</span>
+                            <span>{t('loading')}</span>
                         </>
                     ) : (
-                        initialData ? "Update Expense" : "Add Expense"
+                        initialData ? t('editExpense') : t('recordExpense')
                     )}
                 </button>
             </div>

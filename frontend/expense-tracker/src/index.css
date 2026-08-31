@@ -26,6 +26,10 @@
         background-color: #090d16;
         color: #f8fafc;
     }
+
+    html.dark {
+        color-scheme: dark;
+    }
 }
 
 /* FinTech Grid Background */
@@ -75,7 +79,7 @@
 }
 
 .input-box input {
-    @apply bg-transparent outline-none w-full text-slate-800 dark:text-slate-100 placeholder:text-slate-400;
+    @apply bg-transparent outline-none w-full text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500;
 }
 
 /* Buttons */

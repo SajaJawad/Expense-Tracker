@@ -4,6 +4,7 @@ import { validateEmail } from '../../utils/helper';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { UserContext } from '../../context/userContext';
+import { useLanguage } from '../../context/LanguageContext';
 import AuthLayout from '../../components/layouts/AuthLayout';
 import Input from '../../components/Inputs/Input';
 import { CgSpinner } from 'react-icons/cg';
@@ -15,6 +16,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { updateUser } = useContext(UserContext);
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   // Handle Login Form Submit
@@ -62,14 +64,14 @@ const Login = () => {
 
   return (
     <AuthLayout
-      title="Welcome back 👋"
-      subtitle="Enter your credentials to access your financial dashboard."
+      title={t('loginTitle')}
+      subtitle={t('loginSubtitle')}
     >
       <form onSubmit={handleLogin} className="space-y-4">
         <Input
           value={email}
           onChange={({ target }) => setEmail(target.value)}
-          label="Email Address"
+          label={t('emailAddress')}
           placeholder="name@company.com"
           type="email"
         />
@@ -77,7 +79,7 @@ const Login = () => {
         <Input
           value={password}
           onChange={({ target }) => setPassword(target.value)}
-          label="Password"
+          label={t('password')}
           placeholder="••••••••"
           type="password"
         />
@@ -96,17 +98,17 @@ const Login = () => {
           {isLoading ? (
             <>
               <CgSpinner className="animate-spin text-lg" />
-              <span>Verifying Credentials...</span>
+              <span>{t('loading')}</span>
             </>
           ) : (
-            "Sign In to Dashboard"
+            t('signInBtn')
           )}
         </button>
 
         <p className="text-xs text-center text-slate-600 dark:text-slate-400 mt-4">
-          Don’t have an account yet?{" "}
+          {t('noAccount')}{" "}
           <Link className="font-semibold text-purple-600 dark:text-purple-400 hover:underline" to="/signup">
-            Create an Account
+            {t('signUpLink')}
           </Link>
         </p>
       </form>

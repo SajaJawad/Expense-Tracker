@@ -15,12 +15,14 @@ import {
 } from 'react-router-dom';
 import UserProvider from './context/userContext';
 import { ThemeProvider } from './context/themeContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { ProtectedRoute, PublicOnlyRoute } from './components/ProtectedRoute';
 
 const App = () => {
   return (
-    <ThemeProvider>
-      <UserProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <UserProvider>
         <Router>
           <Routes>
             <Route path='/' element={<Root />} />
@@ -85,6 +87,7 @@ const App = () => {
         />
       </UserProvider>
     </ThemeProvider>
+    </LanguageProvider>
   );
 };
 

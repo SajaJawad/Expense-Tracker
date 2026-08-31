@@ -25,7 +25,8 @@ const Input = ({ value, onChange, label, placeholder, type = "text", error, isCu
         <input 
           type={type === 'password' ? (showPassword ? 'text' : 'password') : type} 
           placeholder={placeholder} 
-          className='w-full bg-transparent outline-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm font-medium' 
+          dir={type === 'email' || type === 'password' ? 'ltr' : undefined}
+          className='w-full bg-transparent outline-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm font-medium ltr:text-left rtl:text-right' 
           value={value} 
           onChange={(e) => onChange(e)} 
         />

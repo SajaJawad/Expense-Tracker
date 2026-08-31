@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import { UserContext } from '../../context/userContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
@@ -25,6 +26,7 @@ import toast from 'react-hot-toast';
 const Home = () => {
   useUserAuth();
   const { user } = useContext(UserContext);
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [dashboardData, setDashboardData] = useState(null);
@@ -58,9 +60,9 @@ const Home = () => {
   // Greeting helper
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return t('goodMorning');
+    if (hour < 18) return t('goodAfternoon');
+    return t('goodEvening');
   };
 
   // Handle Budget Update
@@ -201,13 +203,13 @@ const Home = () => {
         <div className='flex flex-wrap items-center justify-between gap-4 py-2 border-b border-slate-200/60 dark:border-slate-800/60 pb-5'>
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400">
-              <LuSparkles /> <span>FinTech Overview</span>
+              <LuSparkles /> <span>{t('fintechOverview')}</span>
             </div>
             <h2 className='text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-0.5'>
-              {getGreeting()}, {user?.fullName?.split(" ")[0] || "User"} 👋
+              {getGreeting()}, {user?.fullName?.split(" ")[0] || t('user')} 👋
             </h2>
             <p className='text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1'>
-              Here's what's happening with your money today.
+              {t('heroSubtitle')}
             </p>
           </div>
 
@@ -216,13 +218,13 @@ const Home = () => {
               className='flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-md shadow-purple-600/20 active:scale-95'
               onClick={() => setOpenAddExpenseModal(true)}
             >
-              <LuPlus className='text-base' /> Record Expense
+              <LuPlus className='text-base' /> {t('recordExpense')}
             </button>
             <button
               className='flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-md shadow-emerald-600/20 active:scale-95'
               onClick={() => setOpenAddIncomeModal(true)}
             >
-              <LuPlus className='text-base' /> Add Income
+              <LuPlus className='text-base' /> {t('addIncome')}
             </button>
           </div>
         </div>
@@ -238,14 +240,14 @@ const Home = () => {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
             <InfoCard
               icon={<LuWallet />}
-              label="Total Balance"
+              label={t('totalBalance')}
               rawValue={dashboardData?.totalBalance || 0}
               containerBg="bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400"
             />
 
             <InfoCard
               icon={<LuArrowUpRight />}
-              label="Total Income"
+              label={t('totalIncome')}
               rawValue={dashboardData?.totalIncome || 0}
               containerBg="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400"
               growth={currentMonthMetrics.incomeGrowth}
@@ -253,7 +255,7 @@ const Home = () => {
 
             <InfoCard
               icon={<LuArrowDownRight />}
-              label="Total Expense"
+              label={t('totalExpense')}
               rawValue={dashboardData?.totalExpense || 0}
               containerBg="bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400"
               growth={currentMonthMetrics.expenseGrowth}
@@ -322,7 +324,7 @@ const Home = () => {
       <Modal
         isOpen={openAddExpenseModal}
         onClose={() => setOpenAddExpenseModal(false)}
-        title="Add Expense"
+        title={t('recordExpense')}
       >
         <AddExpenseForm onAddExpense={handleAddExpense} />
       </Modal>
@@ -331,7 +333,7 @@ const Home = () => {
       <Modal
         isOpen={openAddIncomeModal}
         onClose={() => setOpenAddIncomeModal(false)}
-        title="Add Income"
+        title={t('addIncome')}
       >
         <AddIncomeForm onAddIncome={handleAddIncome} />
       </Modal>
@@ -342,8 +344,8 @@ const Home = () => {
         onClose={() => setOpenEditModal({ show: false, data: null })}
         title={
           openEditModal.data?.type === "expense" || openEditModal.data?.category !== undefined
-            ? "Edit Expense"
-            : "Edit Income"
+            ? t('editExpense')
+            : t('editIncome')
         }
       >
         {openEditModal.data?.type === "expense" || openEditModal.data?.category !== undefined ? (
@@ -365,16 +367,16 @@ const Home = () => {
         onClose={() => setOpenDeleteAlert({ show: false, data: null })}
         title={
           openDeleteAlert.data?.type === "expense" || openDeleteAlert.data?.category !== undefined
-            ? "Delete Expense"
-            : "Delete Income"
+            ? t('deleteExpense')
+            : t('deleteIncome')
         }
       >
         <DeleteAlert
-          content={`Are you sure you want to delete this ${
+          content={
             openDeleteAlert.data?.type === "expense" || openDeleteAlert.data?.category !== undefined
-              ? "expense"
-              : "income"
-          } detail?`}
+              ? t('confirmDeleteExpense')
+              : t('confirmDeleteIncome')
+          }
           onDelete={handleDeleteTransaction}
         />
       </Modal>

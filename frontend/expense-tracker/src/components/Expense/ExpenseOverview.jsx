@@ -17,8 +17,8 @@ const ExpenseOverview = ({ transactions, onExpenseIncome }) => {
         <div className='card'>
             <div className='flex items-center justify-between'>
                 <div className=''>
-                    <h5 className='text-lg'>Expense Overview</h5>
-                    <p className='text-xs text-gray-400 mt-0.5'>Track your spending over time and gain your money goes.
+                    <h5 className='text-lg font-bold text-slate-900 dark:text-white'>Expense Overview</h5>
+                    <p className='text-xs text-slate-500 dark:text-slate-300 mt-0.5'>Track your spending over time and gain your money goes.
                     </p>
                 </div>
                 <button className='add-btn' onClick={onExpenseIncome}>
