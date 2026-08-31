@@ -146,6 +146,46 @@ exports.getDashboardData = async (req, res, next) => {
             insights.push(`Your savings rate this month is ${currentMonthSavingsRate}%.`);
         }
 
+        // Filter last 30 days expenses (with fallback to allExpenses if filter is empty)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        let last30DaysExpensesList = allExpenses.filter(e => new Date(e.date) >= thirtyDaysAgo);
+        if (last30DaysExpensesList.length === 0 && allExpenses.length > 0) {
+            last30DaysExpensesList = allExpenses;
+        }
+
+        const last30DaysExpense = {
+            total: last30DaysExpensesList.reduce((sum, e) => sum + Number(e.amount), 0),
+            transactions: last30DaysExpensesList.map(item => ({
+                _id: item.id,
+                id: item.id,
+                category: item.category,
+                amount: Number(item.amount),
+                date: item.date,
+                icon: item.icon
+            }))
+        };
+
+        // Filter last 60 days income (with fallback to allIncomes if filter is empty)
+        const sixtyDaysAgo = new Date();
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+        let last60DaysIncomesList = allIncomes.filter(i => new Date(i.date) >= sixtyDaysAgo);
+        if (last60DaysIncomesList.length === 0 && allIncomes.length > 0) {
+            last60DaysIncomesList = allIncomes;
+        }
+
+        const last60DaysIncome = {
+            total: last60DaysIncomesList.reduce((sum, i) => sum + Number(i.amount), 0),
+            transactions: last60DaysIncomesList.map(item => ({
+                _id: item.id,
+                id: item.id,
+                source: item.source,
+                amount: Number(item.amount),
+                date: item.date,
+                icon: item.icon
+            }))
+        };
+
         // Response object
         res.json({
             totalBalance: totalBalanceVal,
@@ -169,6 +209,8 @@ exports.getDashboardData = async (req, res, next) => {
             categoryBreakdown,
             cashFlowData,
             recentTransactions: lastTransactions,
+            last30DaysExpense,
+            last60DaysIncome,
             insights
         });
     } catch (error) {
